@@ -1,12 +1,4 @@
-import os
-os.environ.setdefault("MODEL_PATH", "models/credit_model.pkl")
-
-from fastapi.testclient import TestClient
-from src.api.server import app
-
-client = TestClient(app)
-
-def test_predict_endpoint():
+def test_predict(client):
     payload = {
         "delinq_2yrs": 0,
         "delinq_2yrs_zero": 1,
@@ -24,7 +16,7 @@ def test_predict_endpoint():
         "purpose": "credit card",
         "revol_util": 20,
         "short_emp": 0,
-        "sub_grade_num": 5
+        "sub_grade_num": 5,
     }
     r = client.post("/predict", json=payload)
     assert r.status_code == 200

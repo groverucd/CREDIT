@@ -1,13 +1,7 @@
-# tests/test_api.py
-import os
-os.environ.setdefault("MODEL_PATH", "models/credit_model.pkl")
-
-
 def test_health(client):
     r = client.get("/healthz")
     assert r.status_code == 200
     assert r.json().get("status") in {"ok", "healthy"}
-
 
 def test_predict_smoke(client):
     payload = {
