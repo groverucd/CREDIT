@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual envs
+.venv/
+env/
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+
+# Test cache
+.pytest_cache/
+
+# Notebooks junk
+.ipynb_checkpoints/
+
+# Env files (keep local)
+.env
