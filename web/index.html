@@ -1,29 +1,74 @@
 <!doctype html>
 <html lang="en">
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Credit Scoring Demo</title>
-<style>body{font-family:system-ui;margin:2rem;max-width:720px}label{display:block;margin:.5rem 0}.row{display:flex;gap:1rem}input{padding:.5rem}button{padding:.6rem 1rem}</style>
-<h1>Credit Scoring Demo</h1>
-<div class="row">
-  <label>Age <input id="age" type="number" value="35"/></label>
-  <label>Income <input id="income" type="number" value="50000"/></label>
-  <label>Loan Amount <input id="loan" type="number" value="10000"/></label>
-  <label>Credit Score <input id="score" type="number" value="700"/></label>
-</div>
-<button id="go">Score</button>
-<pre id="out"></pre>
-<script>
-const BASE = "https://credit-6wok.onrender.com";
-document.getElementById('go').onclick = async () => {
-  const payload = {
-    age: +age.value, income: +income.value,
-    loan_amount: +loan.value, credit_score: +score.value
-  };
-  const r = await fetch(`${BASE}/predict_simple`, {
-    method: "POST", headers: {"Content-Type":"application/json"},
-    body: JSON.stringify(payload)
-  });
-  document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 2);
-};
-</script>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Credit Scoring Demo</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header>
+    <h1>Credit Scoring Demo</h1>
+    <p class="sub">Quick check using the demo model (not financial advice).</p>
+  </header>
+
+  <main>
+    <form id="form">
+      <div class="grid">
+        <label>Age
+          <input id="age" type="number" min="18" value="35" required />
+        </label>
+
+        <label>Annual Income ($)
+          <input id="income" type="number" min="0" step="1000" value="50000" required />
+        </label>
+
+        <label>Loan Amount ($)
+          <input id="loan" type="number" min="0" step="500" value="10000" required />
+        </label>
+
+        <label>Credit Score
+          <input id="score" type="number" min="300" max="850" value="700" required />
+        </label>
+      </div>
+
+      <button id="go" type="submit">Score</button>
+      <span id="spinner" class="spinner hidden"></span>
+    </form>
+
+    <section id="result" class="card hidden">
+      <div class="row">
+        <div>
+          <div class="muted">Decision</div>
+          <div id="decision" class="badge">—</div>
+        </div>
+        <div>
+          <div class="muted">Probability of Default</div>
+          <div id="prob" class="prob">—</div>
+        </div>
+      </div>
+      <pre id="json" class="json"></pre>
+    </section>
+
+    <section class="card info">
+      <h3>How this works</h3>
+      <ul>
+        <li>UI calls <code>/predict_simple</code> on your API.</li>
+        <li>We map these 4 inputs into the 17 model features on the server.</li>
+        <li>Thresholds come from your env: <code>THRESH_APPROVE</code> / <code>THRESH_REJECT</code>.</li>
+      </ul>
+      <p><a href="/docs" target="_blank">Open API docs</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <span>API: <code id="apiBase"></code></span>
+  </footer>
+
+  <script>
+    // Change this if you ever custom-domain the API
+    window.API_BASE = "https://credit-6wok.onrender.com";
+  </script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
