@@ -1,19 +1,6 @@
 # tests/test_api.py
 import os
-import pytest
-from starlette.testclient import TestClient
-
-# Make sure the app knows where the model is BEFORE importing the app
 os.environ.setdefault("MODEL_PATH", "models/credit_model.pkl")
-
-from src.api.server import app  # noqa: E402
-
-
-@pytest.fixture(scope="module")
-def client():
-    # Context manager triggers FastAPI startup/shutdown (loads model)
-    with TestClient(app) as c:   # <-- positional arg, not app=app
-        yield c
 
 
 def test_health(client):
