@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Credit Scoring Demo</title>
+<style>body{font-family:system-ui;margin:2rem;max-width:720px}label{display:block;margin:.5rem 0}.row{display:flex;gap:1rem}input{padding:.5rem}button{padding:.6rem 1rem}</style>
+<h1>Credit Scoring Demo</h1>
+<div class="row">
+  <label>Age <input id="age" type="number" value="35"/></label>
+  <label>Income <input id="income" type="number" value="50000"/></label>
+  <label>Loan Amount <input id="loan" type="number" value="10000"/></label>
+  <label>Credit Score <input id="score" type="number" value="700"/></label>
+</div>
+<button id="go">Score</button>
+<pre id="out"></pre>
+<script>
+const BASE = "https://credit-6wok.onrender.com";
+document.getElementById('go').onclick = async () => {
+  const payload = {
+    age: +age.value, income: +income.value,
+    loan_amount: +loan.value, credit_score: +score.value
+  };
+  const r = await fetch(`${BASE}/predict_simple`, {
+    method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
+  });
+  document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 2);
+};
+</script>
