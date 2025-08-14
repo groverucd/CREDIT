@@ -1,59 +1,102 @@
-const BASE = window.API_BASE || "";
-document.getElementById("apiBase").textContent = BASE;
+// Map sub-grade like "A1".."G5" -> integer 1..35 (A1=1, A2=2, ..., G5=35)
+function subGradeToNum(sg) {
+  const gradeMap = { A:0, B:5, C:10, D:15, E:20, F:25, G:30 };
+  const g = sg[0].toUpperCase();
+  const n = parseInt(sg.slice(1), 10); // 1..5
+  return (gradeMap[g] || 0) + (n || 1);
+}
 
-const form = document.getElementById("form");
-const spinner = document.getElementById("spinner");
-const result = document.getElementById("result");
-const decisionEl = document.getElementById("decision");
-const probEl = document.getElementById("prob");
-const jsonEl = document.getElementById("json");
+// Simple monthly payment estimate (very rough): loan / term
+function estimateMonthlyPayment(total, termMonths) {
+  const t = Math.max(1, Number(termMonths) || 36);
+  return Number(total || 0) / t;
+}
 
-form.addEventListener("submit", async (e) => {
+document.getElementById("score-form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const age = +document.getElementById("age").value;
-  const income = +document.getElementById("income").value;
-  const loan = +document.getElementById("loan").value;
-  const score = +document.getElementById("score").value;
+  // Raw inputs
+  const delinq_2yrs = Number(document.getElementById("delinq_2yrs").value || 0);
+  const monthly_income = Number(document.getElementById("monthly_income").value || 0);
+  const monthly_debt = Number(document.getElementById("monthly_debt").value || 0);
+  const loan_amount = Number(document.getElementById("loan_amount").value || 0);
+  const loan_term = Number(document.getElementById("loan_term").value || 36);
 
-  // simple validation
-  if (age < 18 || income < 0 || loan < 0 || score < 300 || score > 850) {
-    alert("Please check your inputs (age≥18, income≥0, loan≥0, score 300–850).");
-    return;
+  const emp_length_num = Number(document.getElementById("emp_length_num").value);
+  const grade = document.getElementById("grade").value;
+  const sub_grade = document.getElementById("sub_grade").value;
+  const home_ownership = document.getElementById("home_ownership").value;
+  const inq_last_6mths = Number(document.getElementById("inq_last_6mths").value || 0);
+  const open_acc = Number(document.getElementById("open_acc").value || 0);
+  const purpose = document.getElementById("purpose").value;
+  const revol_util = Number(document.getElementById("revol_util").value || 0);
+  const pub_rec = Number(document.getElementById("pub_rec").value || 0);
+  const last_delinq_none = Number(document.getElementById("last_delinq_none").value);
+  const last_major_derog_none = Number(document.getElementById("last_major_derog_none").value);
+  let short_emp = Number(document.getElementById("short_emp").value);
+
+  // Derive booleans & ratios the model expects
+  const delinq_2yrs_zero = delinq_2yrs === 0 ? 1 : 0;
+  const pub_rec_zero = pub_rec === 0 ? 1 : 0;
+
+  // very rough estimated loan monthly payment
+  const est_payment = estimateMonthlyPayment(loan_amount, loan_term);
+
+  const monthly_income_pos = Math.max(1, monthly_income); // avoid /0
+  const dti = ((monthly_debt + est_payment) / monthly_income_pos) * 100;
+  const payment_inc_ratio = (est_payment / monthly_income_pos) * 100;
+
+  // If user marks short_emp incorrectly, we can gently derive it (<1yr)
+  if (short_emp !== 0 && short_emp !== 1) {
+    short_emp = emp_length_num < 1 ? 1 : 0;
   }
 
-  spinner.classList.remove("hidden");
+  const sub_grade_num = subGradeToNum(sub_grade);
+
+  const payload = {
+    delinq_2yrs,
+    delinq_2yrs_zero,
+    dti,
+    emp_length_num,
+    grade,
+    home_ownership,
+    inq_last_6mths,
+    last_delinq_none,
+    last_major_derog_none,
+    open_acc,
+    payment_inc_ratio,
+    pub_rec,
+    pub_rec_zero,
+    purpose,
+    revol_util,
+    short_emp,
+    sub_grade_num
+  };
 
   try {
-    const r = await fetch(`${BASE}/predict_simple`, {
+    const r = await fetch("/predict", {
       method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ age, income, loan_amount: loan, credit_score: score })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     });
 
+    const resultBox = document.getElementById("result");
+    const pre = document.getElementById("result-json");
+
+    if (!r.ok) {
+      const msg = await r.text();
+      pre.textContent = `Error ${r.status}: ${msg}`;
+      resultBox.classList.remove("hidden");
+      return;
+    }
+
     const data = await r.json();
-    spinner.classList.add("hidden");
-    result.classList.remove("hidden");
+    pre.textContent = JSON.stringify({ inputs: payload, ...data }, null, 2);
+    resultBox.classList.remove("hidden");
 
-    // set decision badge
-    decisionEl.textContent = data.decision || "—";
-    decisionEl.classList.remove("ok","warn","bad");
-    if (data.decision === "APPROVE") decisionEl.classList.add("ok");
-    else if (data.decision === "CONDITIONAL") decisionEl.classList.add("warn");
-    else decisionEl.classList.add("bad");
-
-    // format probability
-    const p = (data.prob_default ?? 0);
-    probEl.textContent = (Math.round(p * 10000) / 100).toFixed(2) + "%";
-
-    // raw JSON
-    jsonEl.textContent = JSON.stringify(data, null, 2);
   } catch (err) {
-    spinner.classList.add("hidden");
-    result.classList.remove("hidden");
-    decisionEl.textContent = "ERROR";
-    decisionEl.classList.remove("ok","warn"); decisionEl.classList.add("bad");
-    probEl.textContent = "—";
-    jsonEl.textContent = String(err);
+    const pre = document.getElementById("result-json");
+    pre.textContent = `Network error: ${err}`;
+    document.getElementById("result").classList.remove("hidden");
   }
 });
