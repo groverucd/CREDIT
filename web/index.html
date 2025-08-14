@@ -2,73 +2,183 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <title>Credit Scoring — Demo</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Credit Scoring Demo</title>
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <h1>Credit Scoring Demo</h1>
-    <p class="sub">Quick check using the demo model (not financial advice).</p>
-  </header>
+  <main class="container">
+    <h1>Credit Scoring — Demo</h1>
+    <p class="muted">Fill the fields and click “Score Application”.</p>
 
-  <main>
-    <form id="form">
+    <form id="score-form">
       <div class="grid">
-        <label>Age
-          <input id="age" type="number" min="18" value="35" required />
+
+        <!-- 1) delinq_2yrs -->
+        <label>
+          Delinquencies (60+ days) in last 2 years
+          <input type="number" id="delinq_2yrs" min="0" value="0" required />
         </label>
 
-        <label>Annual Income ($)
-          <input id="income" type="number" min="0" step="1000" value="50000" required />
+        <!-- 2) dti inputs (we'll compute) -->
+        <label>
+          Monthly Income (₹ / $)
+          <input type="number" id="monthly_income" min="0" value="5000" required />
         </label>
 
-        <label>Loan Amount ($)
-          <input id="loan" type="number" min="0" step="500" value="10000" required />
+        <label>
+          Current Monthly Debt Payments (excluding rent/mortgage)
+          <input type="number" id="monthly_debt" min="0" value="500" required />
         </label>
 
-        <label>Credit Score
-          <input id="score" type="number" min="300" max="850" value="700" required />
+        <label>
+          Desired Loan Amount (total)
+          <input type="number" id="loan_amount" min="0" value="10000" required />
         </label>
+
+        <label>
+          Assumed Term (months)
+          <select id="loan_term">
+            <option value="36" selected>36</option>
+            <option value="60">60</option>
+          </select>
+        </label>
+
+        <!-- 3) emp_length_num -->
+        <label>
+          Employment Length
+          <select id="emp_length_num">
+            <option value="0">&lt; 1 year</option>
+            <option value="1">1–2 years</option>
+            <option value="3" selected>3–5 years</option>
+            <option value="7">6–9 years</option>
+            <option value="10">10+ years</option>
+          </select>
+        </label>
+
+        <!-- 4) grade -->
+        <label>
+          Grade
+          <select id="grade">
+            <option>A</option><option selected>B</option><option>C</option>
+            <option>D</option><option>E</option><option>F</option><option>G</option>
+          </select>
+        </label>
+
+        <!-- 5) sub_grade (we compute number from A1..G5) -->
+        <label>
+          Sub‑Grade
+          <select id="sub_grade">
+            <!-- A1..A5 -->
+            <option>A1</option><option>A2</option><option>A3</option><option>A4</option><option>A5</option>
+            <!-- B1..B5 -->
+            <option selected>B1</option><option>B2</option><option>B3</option><option>B4</option><option>B5</option>
+            <!-- C1..C5 -->
+            <option>C1</option><option>C2</option><option>C3</option><option>C4</option><option>C5</option>
+            <!-- D1..D5 -->
+            <option>D1</option><option>D2</option><option>D3</option><option>D4</option><option>D5</option>
+            <!-- E1..E5 -->
+            <option>E1</option><option>E2</option><option>E3</option><option>E4</option><option>E5</option>
+            <!-- F1..F5 -->
+            <option>F1</option><option>F2</option><option>F3</option><option>F4</option><option>F5</option>
+            <!-- G1..G5 -->
+            <option>G1</option><option>G2</option><option>G3</option><option>G4</option><option>G5</option>
+          </select>
+        </label>
+
+        <!-- 6) home_ownership -->
+        <label>
+          Home Ownership
+          <select id="home_ownership">
+            <option>RENT</option>
+            <option selected>MORTGAGE</option>
+            <option>OWN</option>
+            <option>OTHER</option>
+          </select>
+        </label>
+
+        <!-- 7) inq_last_6mths -->
+        <label>
+          Hard Inquiries (last 6 months)
+          <input type="number" id="inq_last_6mths" min="0" value="1" required />
+        </label>
+
+        <!-- 8) open_acc -->
+        <label>
+          Open Credit Accounts (cards + loans)
+          <input type="number" id="open_acc" min="0" value="5" required />
+        </label>
+
+        <!-- 9) purpose -->
+        <label>
+          Purpose of Loan
+          <select id="purpose">
+            <option>credit card</option>
+            <option>debt consolidation</option>
+            <option selected>car</option>
+            <option>home improvement</option>
+            <option>medical</option>
+            <option>small business</option>
+            <option>other</option>
+          </select>
+        </label>
+
+        <!-- 10) revol_util -->
+        <label>
+          Credit Utilization (%) — rough estimate
+          <input type="number" id="revol_util" min="0" max="100" value="30" required />
+        </label>
+
+        <!-- 11) pub_rec -->
+        <label>
+          Public Records (e.g., liens, judgments)
+          <input type="number" id="pub_rec" min="0" value="0" required />
+        </label>
+
+        <!-- 12) last_delinq_none -->
+        <label>
+          Any delinquency ever reported?
+          <select id="last_delinq_none">
+            <option value="1" selected>No</option>
+            <option value="0">Yes</option>
+          </select>
+        </label>
+
+        <!-- 13) last_major_derog_none -->
+        <label>
+          Any major derogatory (bankruptcy/charge‑off)?
+          <select id="last_major_derog_none">
+            <option value="1" selected>No</option>
+            <option value="0">Yes</option>
+          </select>
+        </label>
+
+        <!-- 14) short_emp (derived but let user override) -->
+        <label>
+          Short Employment (&lt; 1 year)?
+          <select id="short_emp">
+            <option value="0" selected>No</option>
+            <option value="1">Yes</option>
+          </select>
+        </label>
+
+        <!-- 15) (derived flags) will be computed in JS:
+              delinq_2yrs_zero, pub_rec_zero
+              16) dti (computed)
+              17) payment_inc_ratio (computed)
+        -->
+
       </div>
 
-      <button id="go" type="submit">Score</button>
-      <span id="spinner" class="spinner hidden"></span>
+      <button type="submit" class="primary">Score Application</button>
     </form>
 
     <section id="result" class="card hidden">
-      <div class="row">
-        <div>
-          <div class="muted">Decision</div>
-          <div id="decision" class="badge">—</div>
-        </div>
-        <div>
-          <div class="muted">Probability of Default</div>
-          <div id="prob" class="prob">—</div>
-        </div>
-      </div>
-      <pre id="json" class="json"></pre>
-    </section>
-
-    <section class="card info">
-      <h3>How this works</h3>
-      <ul>
-        <li>UI calls <code>/predict_simple</code> on your API.</li>
-        <li>We map these 4 inputs into the 17 model features on the server.</li>
-        <li>Thresholds come from your env: <code>THRESH_APPROVE</code> / <code>THRESH_REJECT</code>.</li>
-      </ul>
-      <p><a href="/docs" target="_blank">Open API docs</a></p>
+      <h2>Result</h2>
+      <pre id="result-json"></pre>
     </section>
   </main>
 
-  <footer>
-    <span>API: <code id="apiBase"></code></span>
-  </footer>
-
-  <script>
-    // Change this if you ever custom-domain the API
-    window.API_BASE = "https://credit-6wok.onrender.com";
-  </script>
-  <script src="./app.js" defer></script>
+  <script src="app.js"></script>
 </body>
 </html>
