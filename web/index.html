@@ -155,6 +155,31 @@
     ? window.location.origin
     : "https://credit-6wok.onrender.com";
 
+  // --- helpers ---
+  const subGradeNum = (sg) => {
+    const m = /^([A-G])([1-5])$/.exec(String(sg).toUpperCase().trim());
+    if (!m) return 10;                 // safe middle fallback
+    const letter = m[1].charCodeAt(0) - 64; // A=1..G=7 -> 1..7
+    const num = parseInt(m[2], 10);         // 1..5
+    return (letter - 1) * 5 + num;          // 1..35
+  };
+  const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+  const pct = (num, den) => den > 0 ? (num / den) * 100 : 0;
+
+  // --- UI: hide loan amount when purpose is credit_card ---
+  const purposeEl = document.getElementById('purpose');
+  const loanField = document.getElementById('loan-amount-field');
+  function toggleLoanField() {
+    if (purposeEl.value === 'credit_card') {
+      loanField.style.display = 'none';
+    } else {
+      loanField.style.display = '';
+    }
+  }
+  purposeEl.addEventListener('change', toggleLoanField);
+  toggleLoanField(); // run once on load
+
+  // --- main submit ---
   document.getElementById('go').addEventListener('click', async () => {
     // read inputs
     const delinq_2yrs = parseInt(document.getElementById('delinq_2yrs').value || 0, 10);
@@ -166,26 +191,25 @@
     const home_ownership = document.getElementById('home_ownership').value;
     const inq_last_6mths = parseInt(document.getElementById('inq6').value || 0, 10);
     const open_acc = parseInt(document.getElementById('open_acc').value || 0, 10);
-    const revol_util = Math.max(0, Math.min(100, parseFloat(document.getElementById('revol_util').value || 0)));
+    const revol_util = clamp(parseFloat(document.getElementById('revol_util').value || 0), 0, 100);
     const pub_rec = parseInt(document.getElementById('pub_rec').value || 0, 10);
     const last_delinq_none = document.getElementById('any_delinq').value === "0" ? 1 : 0;
     const last_major_derog_none = document.getElementById('any_derog').value === "0" ? 1 : 0;
     const short_emp = parseInt(document.getElementById('short_emp').value, 10);
-    const purpose = document.getElementById('purpose').value;
+    const purpose = purposeEl.value;
+    const loan_amount = parseFloat(document.getElementById('loan_amount').value || 0);
+    const term = parseInt(document.getElementById('term').value, 10);
 
-    const subGradeNum = (sg) => {
-      const m = /^([A-G])([1-5])$/.exec(String(sg).toUpperCase().trim());
-      if (!m) return 10;
-      const letter = m[1].charCodeAt(0) - 64; // A=1..G=7
-      const num = parseInt(m[2], 10);         // 1..5
-      return (letter - 1) * 5 + num;          // 1..35
-    };
-
-    const pct = (num, den) => den > 0 ? (num / den) * 100 : 0;
-    const dti = Math.max(0, Math.min(100, pct(monthly_debt, monthly_income)));
-    const payment_inc_ratio = dti;
+    // derive required features
+    const sub_grade_num = subGradeNum(subgrade);
     const delinq_2yrs_zero = delinq_2yrs === 0 ? 1 : 0;
     const pub_rec_zero = pub_rec === 0 ? 1 : 0;
+
+    // IMPORTANT: make loan amount & term actually affect the model via DTI
+    // Estimate a rough monthly payment (simple principal/term approximation).
+    const est_monthly_payment = term > 0 ? (loan_amount / term) : 0;
+    const dti = clamp(pct(monthly_debt + est_monthly_payment, monthly_income), 0, 100);
+    const payment_inc_ratio = dti; // reuse as a stand-in (matches your server/model schema)
 
     const payload = {
       delinq_2yrs,
@@ -204,7 +228,7 @@
       purpose,
       revol_util,
       short_emp,
-      sub_grade_num: subGradeNum(subgrade)
+      sub_grade_num
     };
 
     const badge = document.getElementById('badge');
@@ -212,7 +236,6 @@
 
     try {
       document.getElementById('go').disabled = true;
-
       const r = await fetch(`${BASE}/predict`, {
         method: "POST",
         headers: {"Content-Type":"application/json"},
@@ -220,7 +243,7 @@
       });
       const data = await r.json();
 
-      // Update PD
+      // Update PD text
       const pd = typeof data.prob_default === "number" ? data.prob_default : NaN;
       kpd.textContent = isFinite(pd) ? (pd * 100).toFixed(2) + "%" : "—";
 
@@ -231,8 +254,9 @@
       else if (data.decision === "REJECT") { badge.classList.add("reject"); badge.textContent="REJECT"; }
       else { badge.textContent = "—"; }
 
+      // (Optional) if you kept the <pre id="out">, you can comment the next line to hide raw JSON
+      // document.getElementById('out').textContent = JSON.stringify(data, null, 2);
     } catch (e) {
-      // Show a generic error state without using #out
       kpd.textContent = "—";
       badge.className = "badge";
       badge.textContent = "—";
