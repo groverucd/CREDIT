@@ -6,13 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root { --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb; --accent:#60a5fa; --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; }
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,Segoe UI,Roboto,Helvetica,Arial}
     .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
     h1{font-size:28px;margin:0 0 18px}
     p.muted{color:var(--muted);margin:0 0 24px}
     .grid{display:grid;grid-template-columns:repeat(4,minmax(240px,1fr));gap:14px}
     .field{display:flex;flex-direction:column;gap:6px}
     label{font-size:12px;color:var(--muted)}
+    .help{font-size:12px;color:var(--muted)}
     input,select{background:#0b1220;border:1px solid #1f2937;border-radius:10px;color:var(--text);padding:12px 12px}
     input:focus,select:focus{outline:2px solid var(--accent)}
     .actions{margin:16px 0 8px}
@@ -36,15 +38,37 @@
     <p class="muted">Fill the form and click Score. We map your answers to the model’s 17 features on the server.</p>
 
     <div class="grid">
-      <div class="field"><label>Delinquencies (60+ days) in last 2 yrs</label><input id="delinq_2yrs" type="number" min="0" value="0"></div>
-      <div class="field"><label>Monthly Income</label><input id="monthly_income" type="number" min="0" value="5000"></div>
-      <div class="field"><label>Current Monthly Debt (ex‑housing)</label><input id="monthly_debt" type="number" min="0" value="500"></div>
-      <div class="field"><label>Desired Loan Amount (not used by model)</label><input id="loan_amount" type="number" min="0" value="10000"></div>
+      <div class="field">
+        <label>Delinquencies (60+ days) in last 2 yrs</label>
+        <input id="delinq_2yrs" type="number" min="0" value="0">
+      </div>
 
-      <div class="field"><label>Assumed Term (months) (not used)</label>
-        <select id="term"><option>36</option><option>60</option></select></div>
+      <div class="field">
+        <label>Monthly Income</label>
+        <input id="monthly_income" type="number" min="0" value="5000">
+        <div class="help">Used with “Current Monthly Debt” to compute DTI.</div>
+      </div>
 
-      <div class="field"><label>Employment Length</label>
+      <div class="field">
+        <label>Current Monthly Debt (ex-housing)</label>
+        <input id="monthly_debt" type="number" min="0" value="500">
+        <div class="help">Include credit card minimums and other loans.</div>
+      </div>
+
+      <div class="field" id="loan-amount-field">
+        <label>Desired Loan Amount</label>
+        <input id="loan_amount" type="number" min="0" value="10000">
+      </div>
+
+      <div class="field">
+        <label>Assumed Term (months)</label>
+        <select id="term">
+          <option>36</option><option>60</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Employment Length</label>
         <select id="emp_length">
           <option value="0">&lt; 1 year</option>
           <option value="1">1–2 years</option>
@@ -54,26 +78,29 @@
         </select>
       </div>
 
-      <div class="field"><label>Grade</label>
+      <div class="field">
+        <label>Grade</label>
         <select id="grade">
           <option>A</option><option selected>B</option><option>C</option><option>D</option>
           <option>E</option><option>F</option><option>G</option>
         </select>
       </div>
 
-      <div class="field"><label>Sub‑Grade</label>
+      <div class="field">
+        <label>Sub-Grade</label>
         <select id="subgrade">
-          <option>A1">A1</option><option>A2">A2</option><option>A3">A3</option><option>A4">A4</option><option>A5">A5</option>
-          <option>B1" selected>B1</option><option>B2">B2</option><option>B3">B3</option><option>B4">B4</option><option>B5">B5</option>
-          <option>C1">C1</option><option>C2">C2</option><option>C3">C3</option><option>C4">C4</option><option>C5">C5</option>
-          <option>D1">D1</option><option>D2">D2</option><option>D3">D3</option><option>D4">D4</option><option>D5">D5</option>
-          <option>E1">E1</option><option>E2">E2</option><option>E3">E3</option><option>E4">E4</option><option>E5">E5</option>
-          <option>F1">F1</option><option>F2">F2</option><option>F3">F3</option><option>F4">F4</option><option>F5">F5</option>
-          <option>G1">G1</option><option>G2">G2</option><option>G3">G3</option><option>G4">G4</option><option>G5">G5</option>
+          <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option><option value="A4">A4</option><option value="A5">A5</option>
+          <option value="B1" selected>B1</option><option value="B2">B2</option><option value="B3">B3</option><option value="B4">B4</option><option value="B5">B5</option>
+          <option value="C1">C1</option><option value="C2">C2</option><option value="C3">C3</option><option value="C4">C4</option><option value="C5">C5</option>
+          <option value="D1">D1</option><option value="D2">D2</option><option value="D3">D3</option><option value="D4">D4</option><option value="D5">D5</option>
+          <option value="E1">E1</option><option value="E2">E2</option><option value="E3">E3</option><option value="E4">E4</option><option value="E5">E5</option>
+          <option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option><option value="F4">F4</option><option value="F5">F5</option>
+          <option value="G1">G1</option><option value="G2">G2</option><option value="G3">G3</option><option value="G4">G4</option><option value="G5">G5</option>
         </select>
       </div>
 
-      <div class="field"><label>Home Ownership</label>
+      <div class="field">
+        <label>Home Ownership</label>
         <select id="home_ownership">
           <option>RENT</option><option selected>MORTGAGE</option><option>OWN</option><option>OTHER</option>
         </select>
@@ -84,16 +111,21 @@
       <div class="field"><label>Credit Utilization %</label><input id="revol_util" type="number" min="0" max="100" value="30"></div>
       <div class="field"><label>Public Records (liens, judgments)</label><input id="pub_rec" type="number" min="0" value="0"></div>
 
-      <div class="field"><label>Any delinquency ever reported?</label>
+      <div class="field">
+        <label>Any delinquency ever reported?</label>
         <select id="any_delinq"><option value="0" selected>No</option><option value="1">Yes</option></select>
       </div>
-      <div class="field"><label>Any major derogatory (BK/charge‑off)?</label>
+      <div class="field">
+        <label>Any major derogatory (BK/charge-off)?</label>
         <select id="any_derog"><option value="0" selected>No</option><option value="1">Yes</option></select>
       </div>
-      <div class="field"><label>Short Employment (&lt; 1 year)?</label>
+      <div class="field">
+        <label>Short Employment (&lt; 1 year)?</label>
         <select id="short_emp"><option value="0" selected>No</option><option value="1">Yes</option></select>
       </div>
-      <div class="field"><label>Purpose of Loan</label>
+
+      <div class="field">
+        <label>Purpose of Loan</label>
         <select id="purpose">
           <option value="credit_card">credit card</option>
           <option value="debt_consolidation">debt_consolidation</option>
@@ -123,7 +155,7 @@
     // ---------- helpers ----------
     const BASE = window.location.origin.includes("onrender.com")
       ? window.location.origin
-      : "https://credit-6wok.onrender.com"; // keep working locally if you host UI separately
+      : "https://credit-6wok.onrender.com";
     document.getElementById('api').textContent = BASE + "/predict";
 
     const subGradeNum = (sg) => {
@@ -137,7 +169,20 @@
     const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
     const pct = (num, den) => den > 0 ? (num / den) * 100 : 0;
 
-    // ---------- UI wiring ----------
+    // ---------- UI behavior: hide loan amount for credit cards ----------
+    const purposeEl = document.getElementById('purpose');
+    const loanAmountWrap = document.getElementById('loan-amount-field');
+    function toggleLoanAmount() {
+      if (purposeEl.value === 'credit_card') {
+        loanAmountWrap.style.display = 'none';
+      } else {
+        loanAmountWrap.style.display = 'block';
+      }
+    }
+    purposeEl.addEventListener('change', toggleLoanAmount);
+    toggleLoanAmount(); // run once on load
+
+    // ---------- Score ----------
     document.getElementById('go').addEventListener('click', async () => {
       // read inputs
       const delinq_2yrs = parseInt(document.getElementById('delinq_2yrs').value || 0, 10);
@@ -154,11 +199,11 @@
       const last_delinq_none = document.getElementById('any_delinq').value === "0" ? 1 : 0;
       const last_major_derog_none = document.getElementById('any_derog').value === "0" ? 1 : 0;
       const short_emp = parseInt(document.getElementById('short_emp').value, 10);
-      const purpose = document.getElementById('purpose').value;
+      const purpose = purposeEl.value;
 
       // derived features per your model schema
-      const dti = clamp(pct(monthly_debt, monthly_income), 0, 100);                 // total debt / income %
-      const payment_inc_ratio = dti;                                                // reuse as a stand‑in
+      const dti = clamp(pct(monthly_debt, monthly_income), 0, 100); // debt/income %
+      const payment_inc_ratio = dti;                                 // reuse as stand-in
       const delinq_2yrs_zero = delinq_2yrs === 0 ? 1 : 0;
       const pub_rec_zero = pub_rec === 0 ? 1 : 0;
       const sub_grade_num = subGradeNum(subgrade);
