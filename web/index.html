@@ -4,32 +4,32 @@
   <meta charset="utf-8" />
   <title>Credit Scoring — Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- external assets with cache-busters -->
-  <link rel="stylesheet" href="/ui/style.css?v=4">
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-  <script src="/ui/app.js?v=4" defer></script>
+  <!-- Styles & App -->
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
-  <!-- ====== HERO ====== -->
-  <header class="hero" id="hero">
+  <!-- ================== 3D Background ================== -->
+  <canvas id="bg3d" aria-hidden="true"></canvas>
+
+  <!-- ================== HERO (Screen 1) ================== -->
+  <header class="hero section" id="hero">
     <nav class="nav">
       <div class="brand">
         <span class="dot"></span>
         <span>Credit Scoring</span>
       </div>
-      <a class="nav-btn" href="#app">Try the Demo</a>
+      <a class="nav-btn" href="#about">Learn More</a>
     </nav>
 
     <div class="hero-inner">
       <h1 class="hero-title">See how lenders evaluate your application</h1>
       <p class="hero-sub">
         Enter your details and get instant, clear results on approval status and default risk,
-        using modern machine learning techniques.
+        powered by modern machine learning techniques.
       </p>
       <div class="cta-row">
-        <a href="#app" class="cta">Start Scoring</a>
-        <a href="/docs" class="ghost">View API</a>
+        <a href="#about" class="cta">How it works</a>
+        <a href="#demo" class="ghost">Try the Demo</a>
       </div>
       <div class="hero-glow"></div>
     </div>
@@ -40,116 +40,121 @@
     </div>
   </header>
 
-  <!-- ====== APP SECTION ====== -->
-  <main class="wrap" id="app">
-    <section class="panels">
-      <!-- Left: Form -->
-      <div class="panel form-panel" id="formPanel">
-        <h2 class="panel-title">Your Application</h2>
+  <!-- ================== ABOUT THE MODEL (Screen 2) ================== -->
+  <section class="section explain" id="about">
+    <div class="wrap explain-grid">
+      <div class="explain-copy">
+        <h2>What the model does</h2>
+        <p>
+          Our model estimates a borrower’s <strong>probability of default (PD)</strong> using
+          a blend of behavioral and credit history features. The decision boundaries are simple:
+          if PD ≤ <code>THRESH_APPROVE</code> → <strong>APPROVE</strong>; between thresholds →
+          <strong>CONDITIONAL</strong>; if PD ≥ <code>THRESH_REJECT</code> → <strong>REJECT</strong>.
+        </p>
+        <ul class="bullets">
+          <li>Sensitive to debt-to-income and utilization</li>
+          <li>Considers inquiries, delinquencies, and public records</li>
+          <li>Transparent decision thresholds</li>
+        </ul>
+      </div>
 
+      <!-- Animated bars (SVG) -->
+      <div class="viz-card">
+        <svg viewBox="0 0 320 200" class="viz-bars" role="img" aria-label="Feature importances">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0%" stop-color="#8ab4ff"/>
+              <stop offset="100%" stop-color="#34d399"/>
+            </linearGradient>
+          </defs>
+          <!-- bars (animated width via JS/GSAP) -->
+          <g transform="translate(30,30)">
+            <text x="0" y="-8" class="viz-title">Feature Signals</text>
+            <g class="bar" data-w="220"><rect x="0" y="0"   width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">revol_util</text></g>
+            <g class="bar" data-w="190" transform="translate(0,28)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">dti</text></g>
+            <g class="bar" data-w="170" transform="translate(0,56)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">pub_rec</text></g>
+            <g class="bar" data-w="150" transform="translate(0,84)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">grade</text></g>
+            <g class="bar" data-w="130" transform="translate(0,112)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">payment_inc_ratio</text></g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================== TRAINING (Screen 3) ================== -->
+  <section class="section training" id="training">
+    <div class="wrap training-grid">
+      <div class="training-copy">
+        <h2>How we trained it</h2>
+        <p>
+          We generated a realistic dataset with balanced purposes (car, credit card, debt consolidation, etc.),
+          engineered features (like DTI and sub-grade), and trained a tree ensemble to predict default.
+        </p>
+        <p>
+          We then calibrated thresholds to map PD → <strong>Approve/Conditional/Reject</strong>. The result is a fast,
+          explainable decision system suitable for demos.
+        </p>
+      </div>
+
+      <div class="slides">
+        <div class="slide one">
+          <h3>1 — Feature Engineering</h3>
+          <p>Derived ratios (DTI), binary flags, and ordinal encodings.</p>
+        </div>
+        <div class="slide two">
+          <h3>2 — Model Training</h3>
+          <p>Random Forest with class balancing and hold-out validation.</p>
+        </div>
+        <div class="slide three">
+          <h3>3 — Threshold Tuning</h3>
+          <p>Simple, auditable bands for consistent decisions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================== CTA (Screen 4) ================== -->
+  <section class="section cta" id="cta">
+    <div class="wrap cta-inner">
+      <h2>Ready to see it in action?</h2>
+      <p>Try the live demo — enter details and get an instant decision.</p>
+      <a href="#demo" class="cta big">Try the Demo</a>
+    </div>
+  </section>
+
+  <!-- ================== DEMO (Screen 5) ================== -->
+  <main class="wrap demo" id="demo">
+    <h2 class="demo-title">Your Application</h2>
+
+    <!-- Progress -->
+    <div class="steps-progress">
+      <div class="dot active" data-step-dot="1"></div>
+      <div class="dot" data-step-dot="2"></div>
+      <div class="dot" data-step-dot="3"></div>
+      <div class="dot" data-step-dot="4"></div>
+    </div>
+
+    <section class="panels wizard">
+      <!-- STEP 1 -->
+      <div class="panel step active" data-step="1">
+        <h3 class="panel-title">Basics</h3>
         <div class="grid">
-          <div class="field">
-            <label>Delinquencies (60+ days) in last 2 yrs</label>
-            <input id="delinq_2yrs" type="number" min="0" value="0">
-          </div>
-
           <div class="field">
             <label>Monthly Income</label>
             <input id="monthly_income" type="number" min="0" value="5000">
-            <div class="hint">Used with “Monthly Debt” to compute DTI.</div>
           </div>
-
           <div class="field">
             <label>Current Monthly Debt (ex-housing)</label>
             <input id="monthly_debt" type="number" min="0" value="500">
           </div>
-
           <div class="field" id="loan-amount-field">
             <label>Desired Loan Amount</label>
             <input id="loan_amount" type="number" min="0" value="10000">
           </div>
-
           <div class="field">
             <label>Assumed Term (months)</label>
-            <select id="term">
-              <option>36</option><option>60</option>
-            </select>
+            <select id="term"><option>36</option><option>60</option></select>
           </div>
-
-          <div class="field">
-            <label>Employment Length</label>
-            <select id="emp_length">
-              <option value="0">&lt; 1 year</option>
-              <option value="1">1–2 years</option>
-              <option value="4" selected>3–5 years</option>
-              <option value="8">6–9 years</option>
-              <option value="10">10+ years</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Grade</label>
-            <select id="grade">
-              <option>A</option><option selected>B</option><option>C</option><option>D</option>
-              <option>E</option><option>F</option><option>G</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Sub-Grade</label>
-            <select id="subgrade">
-              <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option><option value="A4">A4</option><option value="A5">A5</option>
-              <option value="B1" selected>B1</option><option value="B2">B2</option><option value="B3">B3</option><option value="B4">B4</option><option value="B5">B5</option>
-              <option value="C1">C1</option><option value="C2">C2</option><option value="C3">C3</option><option value="C4">C4</option><option value="C5">C5</option>
-              <option value="D1">D1</option><option value="D2">D2</option><option value="D3">D3</option><option value="D4">D4</option><option value="D5">D5</option>
-              <option value="E1">E1</option><option value="E2">E2</option><option value="E3">E3</option><option value="E4">E4</option><option value="E5">E5</option>
-              <option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option><option value="F4">F4</option><option value="F5">F5</option>
-              <option value="G1">G1</option><option value="G2">G2</option><option value="G3">G3</option><option value="G4">G4</option><option value="G5">G5</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Home Ownership</label>
-            <select id="home_ownership">
-              <option>RENT</option><option selected>MORTGAGE</option><option>OWN</option><option>OTHER</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Hard Inquiries (last 6 months)</label>
-            <input id="inq6" type="number" min="0" value="1">
-          </div>
-
-          <div class="field">
-            <label>Open Credit Accounts</label>
-            <input id="open_acc" type="number" min="0" value="5">
-          </div>
-
-          <div class="field">
-            <label>Credit Utilization %</label>
-            <input id="revol_util" type="number" min="0" max="100" value="30">
-          </div>
-
-          <div class="field">
-            <label>Public Records (liens, judgments)</label>
-            <input id="pub_rec" type="number" min="0" value="0">
-          </div>
-
-          <div class="field">
-            <label>Any delinquency ever reported?</label>
-            <select id="any_delinq"><option value="0" selected>No</option><option value="1">Yes</option></select>
-          </div>
-
-          <div class="field">
-            <label>Any major derogatory (BK/charge-off)?</label>
-            <select id="any_derog"><option value="0" selected>No</option><option value="1">Yes</option></select>
-          </div>
-
-          <div class="field">
-            <label>Short Employment (&lt; 1 year)?</label>
-            <select id="short_emp"><option value="0" selected>No</option><option value="1">Yes</option></select>
-          </div>
-
           <div class="field">
             <label>Purpose of Loan</label>
             <select id="purpose">
@@ -163,33 +168,127 @@
             </select>
           </div>
         </div>
-
         <div class="form-actions">
-          <button id="go" class="btn-primary"><span class="btn-ico">⚡</span> Score Application</button>
-          <button id="reset" class="btn-ghost">Reset</button>
+          <button class="btn-primary next">Next</button>
         </div>
       </div>
 
-      <!-- Right: Decision -->
-      <div class="panel result-panel" id="resultPanel">
-        <h2 class="panel-title">Decision</h2>
-
-        <!-- animated loading messages -->
-        <p id="loadingMessages" class="muted" style="min-height:1.6em;"></p>
-
-        <!-- final result gets unhidden after scoring -->
-        <div id="result" hidden>
-          <div class="result-card" id="resultCard">
-            <div class="badge" id="badge">—</div>
-            <div class="pd">
-              <div class="pd-k" id="kpd">—</div>
-              <div class="pd-sub">Probability of Default</div>
-            </div>
+      <!-- STEP 2 -->
+      <div class="panel step" data-step="2">
+        <h3 class="panel-title">Profile & Grade</h3>
+        <div class="grid">
+          <div class="field">
+            <label>Employment Length</label>
+            <select id="emp_length">
+              <option value="0">&lt; 1 year</option>
+              <option value="1">1–2 years</option>
+              <option value="4" selected>3–5 years</option>
+              <option value="8">6–9 years</option>
+              <option value="10">10+ years</option>
+            </select>
           </div>
+          <div class="field">
+            <label>Short Employment (&lt; 1 year)?</label>
+            <select id="short_emp"><option value="0" selected>No</option><option value="1">Yes</option></select>
+          </div>
+          <div class="field">
+            <label>Home Ownership</label>
+            <select id="home_ownership">
+              <option>RENT</option><option selected>MORTGAGE</option><option>OWN</option><option>OTHER</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Grade</label>
+            <select id="grade">
+              <option>A</option><option selected>B</option><option>C</option><option>D</option>
+              <option>E</option><option>F</option><option>G</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Sub-Grade</label>
+            <select id="subgrade">
+              <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option><option value="A4">A4</option><option value="A5">A5</option>
+              <option value="B1" selected>B1</option><option value="B2">B2</option><option value="B3">B3</option><option value="B4">B4</option><option value="B5">B5</option>
+              <option value="C1">C1</option><option value="C2">C2</option><option value="C3">C3</option><option value="C4">C4</option><option value="C5">C5</option>
+              <option value="D1">D1</option><option value="D2">D2</option><option value="D3">D3</option><option value="D4">D4</option><option value="D5">D5</option>
+              <option value="E1">E1</option><option value="E2">E2</option><option value="E3">E3</option><option value="E4">E4</option><option value="E5">E5</option>
+              <option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option><option value="F4">F4</option><option value="F5">F5</option>
+              <option value="G1">G1</option><option value="G2">G2</option><option value="G3">G3</option><option value="G4">G4</option><option value="G5">G5</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost prev">Back</button>
+          <button class="btn-primary next">Next</button>
+        </div>
+      </div>
 
-          <div class="note">
-            Thresholds (server):
-            <code>&lt;= THRESH_APPROVE → APPROVE, between → CONDITIONAL, &gt;= THRESH_REJECT → REJECT</code>
+      <!-- STEP 3 -->
+      <div class="panel step" data-step="3">
+        <h3 class="panel-title">Credit Activity</h3>
+        <div class="grid">
+          <div class="field">
+            <label>Delinquencies (60+ days) in last 2 yrs</label>
+            <input id="delinq_2yrs" type="number" min="0" value="0">
+          </div>
+          <div class="field">
+            <label>Hard Inquiries (last 6 months)</label>
+            <input id="inq6" type="number" min="0" value="1">
+          </div>
+          <div class="field">
+            <label>Open Credit Accounts</label>
+            <input id="open_acc" type="number" min="0" value="5">
+          </div>
+          <div class="field">
+            <label>Credit Utilization %</label>
+            <input id="revol_util" type="number" min="0" max="100" value="30">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost prev">Back</button>
+          <button class="btn-primary next">Next</button>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="panel step" data-step="4">
+        <h3 class="panel-title">Records & Submit</h3>
+        <div class="grid">
+          <div class="field">
+            <label>Public Records (liens, judgments)</label>
+            <input id="pub_rec" type="number" min="0" value="0">
+          </div>
+          <div class="field">
+            <label>Any delinquency ever reported?</label>
+            <select id="any_delinq"><option value="0" selected>No</option><option value="1">Yes</option></select>
+          </div>
+          <div class="field">
+            <label>Any major derogatory (BK/charge-off)?</label>
+            <select id="any_derog"><option value="0" selected>No</option><option value="1">Yes</option></select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost prev">Back</button>
+          <button id="go" class="btn-primary">
+            <span class="btn-ico">⚡</span> Score Application
+          </button>
+          <button id="reset" class="btn-ghost">Reset</button>
+        </div>
+
+        <!-- Loading/status & Result -->
+        <div class="panel result-panel">
+          <p id="status" class="muted"></p>
+          <div id="result" hidden>
+            <div class="result-card" id="resultCard">
+              <div class="badge" id="badge">—</div>
+              <div class="pd">
+                <div class="pd-k" id="kpd">—</div>
+                <div class="pd-sub">Probability of Default</div>
+              </div>
+            </div>
+            <div class="note">
+              Thresholds (server): <code>&lt;= THRESH_APPROVE → APPROVE, between → CONDITIONAL, &gt;= THRESH_REJECT → REJECT</code>
+            </div>
           </div>
         </div>
       </div>
@@ -200,5 +299,12 @@
       <div>© <span id="year"></span> Credit Scoring Demo</div>
     </footer>
   </main>
+
+  <!-- Vendor libs -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <!-- App -->
+  <script src="app.js?v=5" defer></script>
 </body>
 </html>
