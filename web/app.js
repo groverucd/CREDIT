@@ -137,6 +137,7 @@ function makePayload() {
 }
 
 // ================= Funny loading sequence =================
+// ---------- funny messages pool ----------
 const FUNNY_MESSAGES = [
   "Calculating your score—powered by state-of-the-art algorithms and questionable office snacks...",
   "Reviewing your application, your credit history, and your Spotify playlist for good measure...",
@@ -160,30 +161,88 @@ const FUNNY_MESSAGES = [
   "Consulting the credit gods and crossing our fingers for a positive outcome..."
 ];
 
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
-function pickRandom(arr, n) {
-  const pool = [...arr], out = [];
-  while (out.length < n && pool.length) out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+// ---------- utilities ----------
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+function sampleN(arr, n) {
+  const copy = [...arr];
+  const out = [];
+  while (out.length < n && copy.length) {
+    out.push(copy.splice(Math.floor(Math.random() * copy.length), 1)[0]);
+  }
   return out;
 }
-async function typeText(node, text, speed = 18) {
-  node.textContent = "";
-  node.classList.add("typing-caret");
-  for (let i = 0; i < text.length; i++) {
-    node.textContent += text[i];
-    await sleep(speed);
+
+// typing control token to cancel previous animations if user clicks again
+let typingToken = 0;
+
+/**
+ * Type text at a readable pace.
+ * @param {HTMLElement} el   target element
+ * @param {string}      txt  message to type
+ * @param {number}      speedMs  ms per char (25–40 is comfy)
+ * @param {number}      token    cancellation token
+ */
+async function typeText(el, txt, speedMs, token) {
+  el.textContent = "";
+  el.classList.add("typing-caret");
+  for (let i = 0; i < txt.length; i++) {
+    if (token !== typingToken) return;      // cancelled by a newer run
+    el.textContent += txt[i];
+    await sleep(speedMs);
   }
-  node.classList.remove("typing-caret");
+  el.classList.remove("typing-caret");
 }
-async function showLoadingSequence() {
-  const picks = pickRandom(FUNNY_MESSAGES, Math.floor(Math.random() * 2) + 3); // 3 or 4
-  for (const msg of picks) {
-    await typeText(statusEl, msg, 16);
-    await sleep(600);
+
+/**
+ * Show 3–4 messages in sequence, then resolve.
+ * Ensures the first message is fully visible long enough to read.
+ */
+async function showLoadingSequence(statusEl, { count = 3, typeMs = 30, holdFirstMs = 1200, holdBetweenMs = 900 } = {}) {
+  const token = ++typingToken;                           // new run; cancels older ones
+  const picks = sampleN(FUNNY_MESSAGES, count);
+
+  for (let i = 0; i < picks.length; i++) {
+    if (token !== typingToken) return;                   // cancelled
+    await typeText(statusEl, picks[i], typeMs, token);   // type slowly
+    // keep first line on screen a bit longer (prevents “cut off” feel)
+    await sleep(i === 0 ? holdFirstMs : holdBetweenMs);
+    if (token !== typingToken) return;
+    // clear between lines (optional)
     statusEl.textContent = "";
   }
 }
 
+// ---------- single click handler (sequential) ----------
+goBtn.addEventListener("click", async () => {
+  const statusEl = document.getElementById("status");
+  const resultEl = document.getElementById("result");
+
+  goBtn.disabled = true;
+  resultEl.hidden = true;               // hide previous result
+  statusEl.textContent = "Starting evaluation…";
+
+  try {
+    // 1) run the animated sequence (slow typing, 3–4 messages)
+    const count = 3 + Math.floor(Math.random() * 2);  // 3 or 4
+    await showLoadingSequence(statusEl, {
+      count,
+      typeMs: 32,            // <- slow enough to read (≈30–35ms/char)
+      holdFirstMs: 1400,     // <- keep first message longer
+      holdBetweenMs: 1000
+    });
+
+    // 2) only AFTER messages finish, call the API and show decision
+    await runScoring();      // your existing function that sets badge + PD
+
+    statusEl.textContent = "";     // clear the loading line
+    resultEl.hidden = false;       // reveal the decision card
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "Something went wrong. Please try again.";
+  } finally {
+    goBtn.disabled = false;
+  }
+});
 // ================= Call API and render =================
 async function runScoring() {
   const payload = makePayload();
