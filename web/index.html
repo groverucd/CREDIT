@@ -5,8 +5,8 @@
   <title>Credit Scoring — Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- external assets with cache-busters -->
-  <link rel="stylesheet" href="/ui/style.css?v=3">
-  <script src="/ui/app.js?v=3" defer></script>
+  <link rel="stylesheet" href="./style.css?v=4">
+  <script src="./app.js?v=4" defer></script>
 </head>
 <body>
   <!-- ====== HERO ====== -->
@@ -20,9 +20,7 @@
     </nav>
 
     <div class="hero-inner">
-      <h1 class="hero-title">
-        See how lenders evaluate your application
-      </h1>
+      <h1 class="hero-title">See how lenders evaluate your application</h1>
       <p class="hero-sub">
         Enter your details and get instant, clear results on approval status and default risk,
         using modern machine learning techniques.
@@ -165,32 +163,36 @@
         </div>
 
         <div class="form-actions">
-          <button id="go" class="btn-primary">
+          <button id="go" type="button" class="btn-primary">
             <span class="btn-ico">⚡</span> Score Application
           </button>
-          <button id="reset" class="btn-ghost">Reset</button>
+          <button id="reset" type="button" class="btn-ghost">Reset</button>
         </div>
       </div>
 
       <!-- Right: Result -->
       <div class="panel result-panel" id="resultPanel">
         <h2 class="panel-title">Decision</h2>
-        <p id="status" class="muted"></p>
-        <div id="result" hidden>
-         
-        <div class="result-card" id="resultCard">
-          <div class="badge" id="badge">—</div>
-          <div class="pd">
-            <div class="pd-k" id="kpd">—</div>
-            <div class="pd-sub">Probability of Default</div>
-          </div>
-        </div>
 
-        <div class="note">
-          Thresholds (server):
-          <code>&lt;= THRESH_APPROVE → APPROVE, between → CONDITIONAL, &gt;= THRESH_REJECT → REJECT</code>
-        </div>
-      </div>
+        <!-- loading / funny lines appear here -->
+        <p id="status" class="muted"></p>
+
+        <!-- final result gets unhidden after scoring -->
+        <div id="result" hidden>
+          <div class="result-card" id="resultCard">
+            <div class="badge" id="badge">—</div>
+            <div class="pd">
+              <div class="pd-k" id="kpd">—</div>
+              <div class="pd-sub">Probability of Default</div>
+            </div>
+          </div>
+
+          <div class="note">
+            Thresholds (server):
+            <code>&lt;= THRESH_APPROVE → APPROVE, between → CONDITIONAL, &gt;= THRESH_REJECT → REJECT</code>
+          </div>
+        </div> <!-- /#result -->
+      </div> <!-- /.result-panel -->
     </section>
 
     <footer class="foot">
