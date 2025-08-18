@@ -334,5 +334,4 @@ function buildPayloadFromForm() {
     short_emp,
     sub_grade_num
 }
-
-});
+};
