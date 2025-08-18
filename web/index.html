@@ -151,111 +151,130 @@
     <div class="footer">API: <span id="api"></span></div>
   </div>
 
-  <script>
-    // ---------- helpers ----------
-    const BASE = window.location.origin.includes("onrender.com")
-      ? window.location.origin
-      : "https://credit-6wok.onrender.com";
-    document.getElementById('api').textContent = BASE + "/predict";
+<script>
+  // Pick the right API base
+  const BASE = window.location.origin.includes("onrender.com")
+    ? window.location.origin
+    : "http://127.0.0.1:8000"; // local dev
 
-    const subGradeNum = (sg) => {
-      const m = /^([A-G])([1-5])$/.exec(String(sg).toUpperCase().trim());
-      if (!m) return 10; // safe middle fallback
-      const letter = m[1].charCodeAt(0) - 64; // A->1..G->7
-      const num = parseInt(m[2], 10);         // 1..5
-      return (letter - 1) * 5 + num;          // 1..35
+  document.getElementById('api')?.textContent && (document.getElementById('api').textContent = BASE + "/predict_loan");
+
+  // Helpers
+  const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+  const pct   = (num, den) => den > 0 ? (num / den) * 100 : 0;
+
+  // Parse sub-grade to 1..35
+  const subGradeNum = (sg) => {
+    const m = /^([A-G])([1-5])$/.exec(String(sg).toUpperCase().trim());
+    if (!m) return 10;
+    const letter = m[1].charCodeAt(0) - 64; // A->1..G->7
+    const num = parseInt(m[2], 10);
+    return (letter - 1) * 5 + num;
+  };
+
+  // Show/hide loan amount based on purpose
+  const purposeSel = document.getElementById('purpose');
+  const loanRow    = document.getElementById('loan_row');
+  const toggleLoanRow = () => {
+    if (purposeSel.value === "credit_card") {
+      loanRow.style.display = "none";
+    } else {
+      loanRow.style.display = "";
+    }
+  };
+  purposeSel.addEventListener('change', toggleLoanRow);
+  toggleLoanRow(); // initial
+
+  document.getElementById('go').addEventListener('click', async () => {
+    // --- read inputs ---
+    const delinq_2yrs           = parseInt(document.getElementById('delinq_2yrs').value || 0, 10);
+    const annual_income         = parseFloat(document.getElementById('annual_income').value || 0);
+    const monthly_income        = annual_income / 12.0;
+    const monthly_debt          = parseFloat(document.getElementById('monthly_debt').value || 0);
+    const loan_amount_input     = parseFloat(document.getElementById('loan_amount')?.value || 0);
+    const term                  = parseInt(document.getElementById('term').value, 10);
+
+    const emp_length_num        = parseInt(document.getElementById('emp_length').value, 10);
+    const grade                 = document.getElementById('grade').value;
+    const subgrade              = document.getElementById('subgrade').value;
+    const home_ownership        = document.getElementById('home_ownership').value;
+    const inq_last_6mths        = parseInt(document.getElementById('inq6').value || 0, 10);
+    const open_acc              = parseInt(document.getElementById('open_acc').value || 0, 10);
+    const revol_util            = clamp(parseFloat(document.getElementById('revol_util').value || 0), 0, 100);
+    const pub_rec               = parseInt(document.getElementById('pub_rec').value || 0, 10);
+    const last_delinq_none      = document.getElementById('any_delinq').value === "0" ? 1 : 0;
+    const last_major_derog_none = document.getElementById('any_derog').value === "0" ? 1 : 0;
+    const short_emp             = parseInt(document.getElementById('short_emp').value, 10);
+    const purpose               = purposeSel.value;
+
+    // --- derive model features ---
+    const dti                = clamp(pct(monthly_debt, monthly_income), 0, 100); // monthly debt / monthly income
+    const payment_inc_ratio  = dti;                                              // still using dti as stand-in base; /predict_loan will refine if loan provided
+    const delinq_2yrs_zero   = delinq_2yrs === 0 ? 1 : 0;
+    const pub_rec_zero       = pub_rec === 0 ? 1 : 0;
+    const sub_grade_num      = subGradeNum(subgrade);
+
+    // Base payload = 17 features
+    const payload = {
+      delinq_2yrs,
+      delinq_2yrs_zero,
+      dti,
+      emp_length_num,
+      grade,
+      home_ownership,
+      inq_last_6mths,
+      last_delinq_none,
+      last_major_derog_none,
+      open_acc,
+      payment_inc_ratio,
+      pub_rec,
+      pub_rec_zero,
+      purpose,
+      revol_util,
+      short_emp,
+      sub_grade_num
     };
 
-    const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
-    const pct = (num, den) => den > 0 ? (num / den) * 100 : 0;
-
-    // ---------- UI behavior: hide loan amount for credit cards ----------
-    const purposeEl = document.getElementById('purpose');
-    const loanAmountWrap = document.getElementById('loan-amount-field');
-    function toggleLoanAmount() {
-      if (purposeEl.value === 'credit_card') {
-        loanAmountWrap.style.display = 'none';
-      } else {
-        loanAmountWrap.style.display = 'block';
-      }
+    // Extras for /predict_loan
+    // Only include loan_amount if purpose != credit_card (so we don’t “invent” a loan for credit cards)
+    if (purpose !== "credit_card") {
+      payload.loan_amount = isFinite(loan_amount_input) ? loan_amount_input : 0;
+      payload.term = term;
     }
-    purposeEl.addEventListener('change', toggleLoanAmount);
-    toggleLoanAmount(); // run once on load
+    // Always include monthly_income if we have it — this makes payment_inc_ratio exact for loans
+    if (isFinite(monthly_income) && monthly_income > 0) {
+      payload.monthly_income = monthly_income;
+    }
 
-    // ---------- Score ----------
-    document.getElementById('go').addEventListener('click', async () => {
-      // read inputs
-      const delinq_2yrs = parseInt(document.getElementById('delinq_2yrs').value || 0, 10);
-      const monthly_income = parseFloat(document.getElementById('monthly_income').value || 0);
-      const monthly_debt = parseFloat(document.getElementById('monthly_debt').value || 0);
-      const emp_length_num = parseInt(document.getElementById('emp_length').value, 10);
-      const grade = document.getElementById('grade').value;
-      const subgrade = document.getElementById('subgrade').value;
-      const home_ownership = document.getElementById('home_ownership').value;
-      const inq_last_6mths = parseInt(document.getElementById('inq6').value || 0, 10);
-      const open_acc = parseInt(document.getElementById('open_acc').value || 0, 10);
-      const revol_util = clamp(parseFloat(document.getElementById('revol_util').value || 0), 0, 100);
-      const pub_rec = parseInt(document.getElementById('pub_rec').value || 0, 10);
-      const last_delinq_none = document.getElementById('any_delinq').value === "0" ? 1 : 0;
-      const last_major_derog_none = document.getElementById('any_derog').value === "0" ? 1 : 0;
-      const short_emp = parseInt(document.getElementById('short_emp').value, 10);
-      const purpose = purposeEl.value;
+    // --- call API ---
+    try {
+      document.getElementById('go').disabled = true;
+      const r = await fetch(`${BASE}/predict_loan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await r.json();
+      document.getElementById('out').textContent = JSON.stringify(data, null, 2);
 
-      // derived features per your model schema
-      const dti = clamp(pct(monthly_debt, monthly_income), 0, 100); // debt/income %
-      const payment_inc_ratio = dti;                                 // reuse as stand-in
-      const delinq_2yrs_zero = delinq_2yrs === 0 ? 1 : 0;
-      const pub_rec_zero = pub_rec === 0 ? 1 : 0;
-      const sub_grade_num = subGradeNum(subgrade);
+      const pd = typeof data.prob_default === "number" ? data.prob_default : NaN;
+      const pctTxt = isFinite(pd) ? (pd * 100).toFixed(2) + "%" : "—";
+      document.getElementById('kpd').textContent = pctTxt;
 
-      const payload = {
-        delinq_2yrs,
-        delinq_2yrs_zero,
-        dti,
-        emp_length_num,
-        grade,
-        home_ownership,
-        inq_last_6mths,
-        last_delinq_none,
-        last_major_derog_none,
-        open_acc,
-        payment_inc_ratio,
-        pub_rec,
-        pub_rec_zero,
-        purpose,
-        revol_util,
-        short_emp,
-        sub_grade_num
-      };
-
-      try {
-        document.getElementById('go').disabled = true;
-        const r = await fetch(`${BASE}/predict`, {
-          method: "POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify(payload)
-        });
-        const data = await r.json();
-        document.getElementById('out').textContent = JSON.stringify(data, null, 2);
-
-        const pd = typeof data.prob_default === "number" ? data.prob_default : NaN;
-        const pctTxt = isFinite(pd) ? (pd*100).toFixed(2) + "%" : "—";
-        document.getElementById('kpd').textContent = pctTxt;
-
-        const badge = document.getElementById('badge');
-        badge.className = "badge";
-        if (data.decision === "APPROVE") { badge.classList.add("approve"); badge.textContent="APPROVE"; }
-        else if (data.decision === "CONDITIONAL") { badge.classList.add("conditional"); badge.textContent="CONDITIONAL"; }
-        else if (data.decision === "REJECT") { badge.classList.add("reject"); badge.textContent="REJECT"; }
-        else { badge.textContent = "—"; }
-      } catch (e) {
-        document.getElementById('out').textContent = "Request failed: " + e;
-        document.getElementById('kpd').textContent = "—";
-        const badge = document.getElementById('badge'); badge.className="badge"; badge.textContent="—";
-      } finally {
-        document.getElementById('go').disabled = false;
-      }
-    });
-  </script>
+      const badge = document.getElementById('badge');
+      badge.className = "badge";
+      if (data.decision === "APPROVE") { badge.classList.add("approve"); badge.textContent="APPROVE"; }
+      else if (data.decision === "CONDITIONAL") { badge.classList.add("conditional"); badge.textContent="CONDITIONAL"; }
+      else if (data.decision === "REJECT") { badge.classList.add("reject"); badge.textContent="REJECT"; }
+      else { badge.textContent = "—"; }
+    } catch (e) {
+      document.getElementById('out').textContent = "Request failed: " + e;
+      document.getElementById('kpd').textContent = "—";
+      const badge = document.getElementById('badge'); badge.className="badge"; badge.textContent="—";
+    } finally {
+      document.getElementById('go').disabled = false;
+    }
+  });
+</script>
 </body>
 </html>
