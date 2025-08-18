@@ -1,22 +1,20 @@
-// ================= Base + header bits =================
+// ================= Base =================
 const BASE = window.location.origin.includes("onrender.com")
   ? window.location.origin
   : "https://credit-6wok.onrender.com";
 
 const el = (id) => document.getElementById(id);
-const apiBase = el("apiBase");
-if (apiBase) apiBase.textContent = BASE;
-const year = el("year");
-if (year) year.textContent = new Date().getFullYear();
-
 const badgeEl = el("badge");
 const kpdEl = el("kpd");
 const goBtn = el("go");
 const resetBtn = el("reset");
 const purposeEl = el("purpose");
 const loanAmountField = el("loan-amount-field");
-const statusEl = el("status");
 const resultEl = el("result");
+const loadingMessagesEl = el("loadingMessages");
+
+const apiBase = el("apiBase"); if (apiBase) apiBase.textContent = BASE;
+const year = el("year"); if (year) year.textContent = new Date().getFullYear();
 
 // ================= GSAP (optional) =================
 (() => {
@@ -78,11 +76,10 @@ resetBtn.addEventListener("click", () => {
   el("term").value = "36";
   updateLoanAmountVisibility();
 
-  // Clear UI
   badgeEl.className = "badge";
   badgeEl.textContent = "—";
   kpdEl.textContent = "—";
-  statusEl.textContent = "";
+  loadingMessagesEl.textContent = "";
   resultEl.hidden = true;
 });
 
@@ -107,7 +104,7 @@ function makePayload() {
   const short_emp = getI("short_emp");
   const purpose = el("purpose").value;
 
-  // Derived for current model
+  // Derived for current model (no direct loan_amount/term in baseline model)
   const dti = clamp(pct(monthly_debt, monthly_income), 0, 100);
   const payment_inc_ratio = dti;
   const delinq_2yrs_zero = delinq_2yrs === 0 ? 1 : 0;
@@ -132,12 +129,10 @@ function makePayload() {
     revol_util,
     short_emp,
     sub_grade_num
-    // NOTE: loan_amount / term not sent; model not trained with them yet.
   };
 }
 
-// ================= Funny loading sequence =================
-// ---------- funny messages pool ----------
+// ================= Fun loading sequence =================
 const FUNNY_MESSAGES = [
   "Calculating your score—powered by state-of-the-art algorithms and questionable office snacks...",
   "Reviewing your application, your credit history, and your Spotify playlist for good measure...",
@@ -161,88 +156,36 @@ const FUNNY_MESSAGES = [
   "Consulting the credit gods and crossing our fingers for a positive outcome..."
 ];
 
-// ---------- utilities ----------
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-function sampleN(arr, n) {
-  const copy = [...arr];
-  const out = [];
-  while (out.length < n && copy.length) {
-    out.push(copy.splice(Math.floor(Math.random() * copy.length), 1)[0]);
+const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
+function pickRandom(arr, n) {
+  const pool = [...arr], out = [];
+  while (out.length < n && pool.length) {
+    out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
   }
   return out;
 }
 
-// typing control token to cancel previous animations if user clicks again
-let typingToken = 0;
-
-/**
- * Type text at a readable pace.
- * @param {HTMLElement} el   target element
- * @param {string}      txt  message to type
- * @param {number}      speedMs  ms per char (25–40 is comfy)
- * @param {number}      token    cancellation token
- */
-async function typeText(el, txt, speedMs, token) {
-  el.textContent = "";
-  el.classList.add("typing-caret");
-  for (let i = 0; i < txt.length; i++) {
-    if (token !== typingToken) return;      // cancelled by a newer run
-    el.textContent += txt[i];
-    await sleep(speedMs);
+async function typeText(node, text, speed = 40) {
+  node.classList.add("typing-caret");
+  node.textContent = "";
+  for (let i = 0; i < text.length; i++) {
+    node.textContent += text[i];
+    await sleep(speed);           // typing speed
   }
-  el.classList.remove("typing-caret");
+  node.classList.remove("typing-caret");
+  await sleep(700);               // hold message after typing
 }
 
-/**
- * Show 3–4 messages in sequence, then resolve.
- * Ensures the first message is fully visible long enough to read.
- */
-async function showLoadingSequence(statusEl, { count = 3, typeMs = 30, holdFirstMs = 1200, holdBetweenMs = 900 } = {}) {
-  const token = ++typingToken;                           // new run; cancels older ones
-  const picks = sampleN(FUNNY_MESSAGES, count);
-
-  for (let i = 0; i < picks.length; i++) {
-    if (token !== typingToken) return;                   // cancelled
-    await typeText(statusEl, picks[i], typeMs, token);   // type slowly
-    // keep first line on screen a bit longer (prevents “cut off” feel)
-    await sleep(i === 0 ? holdFirstMs : holdBetweenMs);
-    if (token !== typingToken) return;
-    // clear between lines (optional)
-    statusEl.textContent = "";
+async function showLoadingSequence() {
+  const count = 3 + Math.floor(Math.random() * 2); // 3–4 messages
+  const picks = pickRandom(FUNNY_MESSAGES, count);
+  for (const msg of picks) {
+    await typeText(loadingMessagesEl, msg, 42); // slower so it’s readable
   }
+  loadingMessagesEl.textContent = "";
 }
 
-// ---------- single click handler (sequential) ----------
-goBtn.addEventListener("click", async () => {
-  const statusEl = document.getElementById("status");
-  const resultEl = document.getElementById("result");
-
-  goBtn.disabled = true;
-  resultEl.hidden = true;               // hide previous result
-  statusEl.textContent = "Starting evaluation…";
-
-  try {
-    // 1) run the animated sequence (slow typing, 3–4 messages)
-    const count = 3 + Math.floor(Math.random() * 2);  // 3 or 4
-    await showLoadingSequence(statusEl, {
-      count,
-      typeMs: 32,            // <- slow enough to read (≈30–35ms/char)
-      holdFirstMs: 1400,     // <- keep first message longer
-      holdBetweenMs: 1000
-    });
-
-    // 2) only AFTER messages finish, call the API and show decision
-    await runScoring();      // your existing function that sets badge + PD
-
-    statusEl.textContent = "";     // clear the loading line
-    resultEl.hidden = false;       // reveal the decision card
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = "Something went wrong. Please try again.";
-  } finally {
-    goBtn.disabled = false;
-  }
-});
 // ================= Call API and render =================
 async function runScoring() {
   const payload = makePayload();
@@ -254,7 +197,6 @@ async function runScoring() {
   });
   const data = await r.json();
 
-  // Render result
   const pd = typeof data.prob_default === "number" ? data.prob_default : NaN;
   kpdEl.textContent = isFinite(pd) ? (pd * 100).toFixed(2) + "%" : "—";
 
@@ -264,10 +206,8 @@ async function runScoring() {
   else if (data.decision === "REJECT") { badgeEl.classList.add("reject"); badgeEl.textContent = "REJECT"; }
   else { badgeEl.textContent = "—"; }
 
-  // Show result card
+  // reveal result and animate
   resultEl.hidden = false;
-  statusEl.textContent = "";
-
   if (window.gsap) {
     gsap.from("#resultCard", { scale: 0.98, opacity: 0.6, duration: 0.35, ease: "power2.out" });
     gsap.from("#badge", { y: -6, duration: 0.35, ease: "power2.out" });
@@ -275,26 +215,26 @@ async function runScoring() {
   }
 }
 
-// ================= Click handler =================
+// ================= Single click handler =================
 goBtn.addEventListener("click", async () => {
-  // prepare UI
+  // reset decision panel
   resultEl.hidden = true;
   badgeEl.className = "badge";
-  badgeEl.textContent = "…";
+  badgeEl.textContent = "—";
   kpdEl.textContent = "—";
-  statusEl.textContent = "Starting evaluation…";
+  loadingMessagesEl.textContent = "Starting evaluation…";
 
   goBtn.disabled = true;
   try {
-    // Start API request in parallel with the messages to smooth UX
-    const apiPromise = runScoring(); // NOTE: kicks off fetch but we await after messages
+    // do the messages first…
     await showLoadingSequence();
-    await apiPromise;               // wait for server result
+    // …then fetch and show the real result
+    await runScoring();
   } catch (e) {
     console.error("Request failed:", e);
     badgeEl.className = "badge"; badgeEl.textContent = "—";
     kpdEl.textContent = "—";
-    statusEl.textContent = "Something went wrong. Please try again.";
+    loadingMessagesEl.textContent = "Something went wrong. Please try again.";
   } finally {
     goBtn.disabled = false;
   }
