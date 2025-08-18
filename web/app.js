@@ -167,4 +167,172 @@ goBtn.addEventListener("click", async () => {
     goBtn.disabled = false;
     goBtn.style.transform = "";
   }
+  // ---------- Funny messages pool ----------
+const FUNNY_MESSAGES = [
+  "Calculating your score—powered by state-of-the-art algorithms and questionable office snacks...",
+  "Reviewing your application, your credit history, and your Spotify playlist for good measure...",
+  "Crunching numbers and pretending not to judge your coffee intake...",
+  "Factoring in your employment length and your ability to remember all your passwords...",
+  "Checking your loan purpose and your weekend plans for optimal results...",
+  "Consulting your credit cards and your favorite browser tabs for consensus...",
+  "Running simulations and hoping “Grade: A” means extra credit...",
+  "Analyzing your financials and resisting the urge to order pizza...",
+  "Verifying your public records and your social media privacy settings...",
+  "Asking your bank account if it’s ready for this commitment...",
+  "Processing your application—please hold while we consult the Magic 8-Ball...",
+  "Reviewing your financial profile and wishing we had your Netflix password...",
+  "Checking your credit utilization and your snack stash for hidden assets...",
+  "Analyzing your data and wondering if “no major derogatory” means no office drama...",
+  "Determining if your open accounts are open for business or just window shopping...",
+  "Running a simulation with imaginary money for maximum accuracy...",
+  "Crunching numbers and hoping your cat isn’t your financial advisor...",
+  "Factoring in your employment history and your ability to make small talk at the water cooler...",
+  "Verifying your income and your ability to say “synergy” in meetings...",
+  "Consulting the credit gods and crossing our fingers for a positive outcome..."
+];
+
+// ---------- Utilities ----------
+const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+function pickRandomMessages(arr, n) {
+  const pool = [...arr];
+  const picks = [];
+  while (picks.length < n && pool.length) {
+    const i = Math.floor(Math.random() * pool.length);
+    picks.push(pool.splice(i, 1)[0]);
+  }
+  return picks;
+}
+
+// Typewriter effect for a single message
+async function typeText(el, text, speed = 20) {
+  el.textContent = "";
+  el.classList.add("typing-caret");
+  for (let i = 0; i < text.length; i++) {
+    el.textContent += text[i];
+    await sleep(speed);
+  }
+  el.classList.remove("typing-caret");
+}
+
+// Erase text (optional little fade)
+async function clearText(el, holdMs = 500) {
+  await sleep(holdMs);
+  el.textContent = "";
+}
+
+// Show 3 typed messages in sequence
+async function showTypedLoading(statusEl) {
+  const messages = pickRandomMessages(FUNNY_MESSAGES, 3);
+  for (const msg of messages) {
+    await typeText(statusEl, msg, 16); // typing speed (ms per char)
+    await clearText(statusEl, 700);    // pause before next line
+  }
+}
+
+// ---------- Hook up the button ----------
+document.getElementById("go").addEventListener("click", async () => {
+  const statusEl = document.getElementById("status");
+  const resultEl = document.getElementById("result");
+  const btn = document.getElementById("go");
+
+  // hide old result, show status
+  resultEl.hidden = true;
+  statusEl.textContent = "Starting evaluation…";
+  btn.disabled = true;
+
+  // Build your payload from the form (replace with your existing code)
+  const payload = buildPayloadFromForm(); // <- use your current builder
+
+  // Start API call in parallel
+  const apiPromise = fetch(`${BASE}/predict`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
+  }).then(r => r.json()).catch(err => ({ error: String(err) }));
+
+  // Run the typewriter loading sequence
+  await showTypedLoading(statusEl);
+
+  // Wait for (or use) the API result
+  const data = await apiPromise;
+
+  // Render final outcome
+  statusEl.textContent = "";
+  btn.disabled = false;
+
+  if (data && !data.error) {
+    // Update your badge + PD UI
+    const badge = document.getElementById('badge');
+    const kpd = document.getElementById('kpd');
+
+    const pd = typeof data.prob_default === "number" ? data.prob_default : NaN;
+    kpd.textContent = isFinite(pd) ? (pd * 100).toFixed(2) + "%" : "—";
+
+    badge.className = "badge";
+    if (data.decision === "APPROVE") { badge.classList.add("approve"); badge.textContent="APPROVE"; }
+    else if (data.decision === "CONDITIONAL") { badge.classList.add("conditional"); badge.textContent="CONDITIONAL"; }
+    else if (data.decision === "REJECT") { badge.classList.add("reject"); badge.textContent="REJECT"; }
+    else { badge.textContent = "—"; }
+
+    resultEl.hidden = false;
+  } else {
+    statusEl.textContent = "Something went wrong. Please try again.";
+  }
+});
+
+// Example stub — replace with your real form collector
+function buildPayloadFromForm() {
+  const get = (id) => document.getElementById(id);
+  const delinq_2yrs = parseInt(get('delinq_2yrs').value || 0, 10);
+  const monthly_income = parseFloat(get('monthly_income').value || 0);
+  const monthly_debt = parseFloat(get('monthly_debt').value || 0);
+  const emp_length_num = parseInt(get('emp_length').value, 10);
+  const grade = get('grade').value;
+  const subgrade = get('subgrade').value;
+  const home_ownership = get('home_ownership').value;
+  const inq_last_6mths = parseInt(get('inq6').value || 0, 10);
+  const open_acc = parseInt(get('open_acc').value || 0, 10);
+  const revol_util = Math.max(0, Math.min(100, parseFloat(get('revol_util').value || 0)));
+  const pub_rec = parseInt(get('pub_rec').value || 0, 10);
+  const last_delinq_none = get('any_delinq').value === "0" ? 1 : 0;
+  const last_major_derog_none = get('any_derog').value === "0" ? 1 : 0;
+  const short_emp = parseInt(get('short_emp').value, 10);
+  const purpose = get('purpose').value;
+
+  const subGradeNum = (sg) => {
+    const m = /^([A-G])([1-5])$/.exec(String(sg).toUpperCase().trim());
+    if (!m) return 10;
+    const letter = m[1].charCodeAt(0) - 64; // A=1..G=7
+    const num = parseInt(m[2], 10);         // 1..5
+    return (letter - 1) * 5 + num;          // 1..35
+  };
+
+  const pct = (num, den) => den > 0 ? (num / den) * 100 : 0;
+  const dti = Math.max(0, Math.min(100, pct(monthly_debt, monthly_income)));
+  const payment_inc_ratio = dti;
+  const delinq_2yrs_zero = delinq_2yrs === 0 ? 1 : 0;
+  const pub_rec_zero = pub_rec === 0 ? 1 : 0;
+  const sub_grade_num = subGradeNum(subgrade);
+
+  return {
+    delinq_2yrs,
+    delinq_2yrs_zero,
+    dti,
+    emp_length_num,
+    grade,
+    home_ownership,
+    inq_last_6mths,
+    last_delinq_none,
+    last_major_derog_none,
+    open_acc,
+    payment_inc_ratio,
+    pub_rec,
+    pub_rec_zero,
+    purpose,
+    revol_util,
+    short_emp,
+    sub_grade_num
+}
+
 });
