@@ -1,0 +1,4 @@
+grade,sub_grade_num,short_emp,emp_length_num,home_ownership,dti,purpose,payment_inc_ratio,delinq_2yrs,delinq_2yrs_zero,inq_last_6mths,last_delinq_none,last_major_derog_none,open_acc,pub_rec,pub_rec_zero,revol_util,bad_loans
+B,0.314,0,3,RENT,12.5,car,8.0,0,1,1,1,1,4,0,1,30.0,0
+C,0.486,1,0,MORTGAGE,35.0,debt_consolidation,18.5,2,0,3,0,1,8,1,0,82.0,1
+A,0.057,0,6,OWN,9.0,credit card,6.0,0,1,0,1,1,10,0,1,12.0,0
