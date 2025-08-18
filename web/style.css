@@ -15,7 +15,9 @@
 html, body { height: 100% }
 body {
   margin: 0;
-  background: radial-gradient(1200px 800px at 70% -10%, rgba(138,180,255,.08), transparent 60%) , var(--bg);
+  background:
+    radial-gradient(1200px 800px at 70% -10%, rgba(138,180,255,.08), transparent 60%),
+    var(--bg);
   color: var(--text);
   font: 16px/1.45 "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
@@ -46,27 +48,10 @@ body {
 }
 .nav-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: var(--glow); }
 
-.hero {
-  position: relative;
-  padding: 64px 24px 48px;
-  overflow: clip;
-}
-.hero-inner {
-  max-width: 1100px; margin: 0 auto; text-align: center; padding: 56px 0 12px;
-}
-.hero-title {
-  font-size: clamp(32px, 4.2vw, 64px);
-  line-height: 1.05;
-  margin: 0 0 14px;
-  font-weight: 800;
-  letter-spacing: -0.4px;
-}
-.hero-sub {
-  max-width: 860px;
-  margin: 0 auto 24px;
-  color: var(--muted);
-  font-size: clamp(16px, 1.6vw, 20px);
-}
+.hero { position: relative; padding: 64px 24px 48px; overflow: clip; }
+.hero-inner { max-width: 1100px; margin: 0 auto; text-align: center; padding: 56px 0 12px; }
+.hero-title { font-size: clamp(32px, 4.2vw, 64px); line-height: 1.05; margin: 0 0 14px; font-weight: 800; letter-spacing: -0.4px; }
+.hero-sub { max-width: 860px; margin: 0 auto 24px; color: var(--muted); font-size: clamp(16px, 1.6vw, 20px); }
 .cta-row { display: inline-flex; gap: 12px; margin-top: 10px }
 .cta, .ghost {
   display: inline-flex; align-items:center; gap: 8px;
@@ -79,18 +64,12 @@ body {
 .ghost:hover { transform: translateY(-2px) }
 
 .hero-glow {
-  position: absolute; inset: -40% -20% auto -20%;
-  height: 80%;
+  position: absolute; inset: -40% -20% auto -20%; height: 80%;
   background: radial-gradient(800px 400px at 50% 0%, rgba(138,180,255,.18), transparent 60%);
   pointer-events: none;
 }
-
-.hero-scroll {
-  display: grid; place-items: center; gap: 8px; color: var(--muted); margin-top: 24px;
-}
-.hero-scroll .mouse {
-  width: 22px; height: 36px; border: 2px solid var(--panel-border); border-radius: 12px; position: relative;
-}
+.hero-scroll { display: grid; place-items: center; gap: 8px; color: var(--muted); margin-top: 24px; }
+.hero-scroll .mouse { width: 22px; height: 36px; border: 2px solid var(--panel-border); border-radius: 12px; position: relative; }
 .hero-scroll .mouse::after {
   content:""; position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
   width: 4px; height: 6px; background: var(--muted); border-radius: 2px; animation: wheel 1.6s infinite;
@@ -101,7 +80,7 @@ body {
 .wrap { max-width: 1200px; margin: 0 auto; padding: 16px 24px 64px }
 .panels { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; align-items: start }
 .panel {
-  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0) 18px) , var(--panel);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0) 18px), var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 18px;
   padding: 18px;
@@ -155,22 +134,14 @@ code { background: #0b1220; border: 1px solid var(--panel-border); padding: 2px 
   margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--panel-border);
   display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px;
 }
-/* ---------- Funny loading messages styles ---------- */
-.muted {
-  color: #94a3b8; /* nice gray-blue */
-}
 
-#status {
-  min-height: 1.6em;       /* keeps height stable */
-  white-space: pre-wrap;   /* allow multi-line typing */
-  font-family: monospace;  /* typewriter feel */
-}
-
+/* funny loading messages typing caret */
 .typing-caret::after {
-  content: "▌";
-  animation: blink 1s steps(1) infinite;
+  content: '|';
+  animation: blink 1s infinite;
+  margin-left: 2px;
 }
-
 @keyframes blink {
-  50% { opacity: 0; }
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
 }
