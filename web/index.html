@@ -5,8 +5,10 @@
   <title>Credit Scoring — Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- external assets with cache-busters -->
-  <link rel="stylesheet" href="./style.css?v=4">
-  <script src="./app.js?v=4" defer></script>
+  <link rel="stylesheet" href="/ui/style.css?v=4">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="/ui/app.js?v=4" defer></script>
 </head>
 <body>
   <!-- ====== HERO ====== -->
@@ -163,19 +165,17 @@
         </div>
 
         <div class="form-actions">
-          <button id="go" type="button" class="btn-primary">
-            <span class="btn-ico">⚡</span> Score Application
-          </button>
-          <button id="reset" type="button" class="btn-ghost">Reset</button>
+          <button id="go" class="btn-primary"><span class="btn-ico">⚡</span> Score Application</button>
+          <button id="reset" class="btn-ghost">Reset</button>
         </div>
       </div>
 
-      <!-- Right: Result -->
+      <!-- Right: Decision -->
       <div class="panel result-panel" id="resultPanel">
         <h2 class="panel-title">Decision</h2>
 
-        <!-- loading / funny lines appear here -->
-        <p id="status" class="muted"></p>
+        <!-- animated loading messages -->
+        <p id="loadingMessages" class="muted" style="min-height:1.6em;"></p>
 
         <!-- final result gets unhidden after scoring -->
         <div id="result" hidden>
@@ -191,8 +191,8 @@
             Thresholds (server):
             <code>&lt;= THRESH_APPROVE → APPROVE, between → CONDITIONAL, &gt;= THRESH_REJECT → REJECT</code>
           </div>
-        </div> <!-- /#result -->
-      </div> <!-- /.result-panel -->
+        </div>
+      </div>
     </section>
 
     <footer class="foot">
@@ -200,9 +200,5 @@
       <div>© <span id="year"></span> Credit Scoring Demo</div>
     </footer>
   </main>
-
-  <!-- GSAP -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 </body>
 </html>
