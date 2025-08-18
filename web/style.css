@@ -155,3 +155,22 @@ code { background: #0b1220; border: 1px solid var(--panel-border); padding: 2px 
   margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--panel-border);
   display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px;
 }
+/* ---------- Funny loading messages styles ---------- */
+.muted {
+  color: #94a3b8; /* nice gray-blue */
+}
+
+#status {
+  min-height: 1.6em;       /* keeps height stable */
+  white-space: pre-wrap;   /* allow multi-line typing */
+  font-family: monospace;  /* typewriter feel */
+}
+
+.typing-caret::after {
+  content: "▌";
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
