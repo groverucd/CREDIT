@@ -4,17 +4,19 @@ const BASE = window.location.origin.includes("onrender.com")
   : "https://credit-6wok.onrender.com";
 
 const el = (id) => document.getElementById(id);
+const apiBase = el("apiBase");
+if (apiBase) apiBase.textContent = BASE;
+const year = el("year");
+if (year) year.textContent = new Date().getFullYear();
+
 const badgeEl = el("badge");
 const kpdEl = el("kpd");
 const goBtn = el("go");
 const resetBtn = el("reset");
 const purposeEl = el("purpose");
 const loanAmountField = el("loan-amount-field");
-
-const apiBase = el("apiBase");
-if (apiBase) apiBase.textContent = BASE;
-const year = el("year");
-if (year) year.textContent = new Date().getFullYear();
+const statusEl = el("status");
+const resultEl = el("result");
 
 // ================= GSAP (optional) =================
 (() => {
@@ -76,9 +78,12 @@ resetBtn.addEventListener("click", () => {
   el("term").value = "36";
   updateLoanAmountVisibility();
 
+  // Clear UI
   badgeEl.className = "badge";
   badgeEl.textContent = "—";
   kpdEl.textContent = "—";
+  statusEl.textContent = "";
+  resultEl.hidden = true;
 });
 
 // ================= Payload builder (17 model features) =================
@@ -127,11 +132,11 @@ function makePayload() {
     revol_util,
     short_emp,
     sub_grade_num
-    // NOTE: loan_amount/term not sent; model not trained with them yet.
+    // NOTE: loan_amount / term not sent; model not trained with them yet.
   };
 }
 
-// ================= Fun loading sequence =================
+// ================= Funny loading sequence =================
 const FUNNY_MESSAGES = [
   "Calculating your score—powered by state-of-the-art algorithms and questionable office snacks...",
   "Reviewing your application, your credit history, and your Spotify playlist for good measure...",
@@ -156,32 +161,26 @@ const FUNNY_MESSAGES = [
 ];
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
-
 function pickRandom(arr, n) {
-  const pool = [...arr];
-  const out = [];
-  while (out.length < n && pool.length) {
-    out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
-  }
+  const pool = [...arr], out = [];
+  while (out.length < n && pool.length) out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
   return out;
 }
-
-async function typeText(elm, text, speed = 18) {
-  elm.textContent = "";
+async function typeText(node, text, speed = 18) {
+  node.textContent = "";
+  node.classList.add("typing-caret");
   for (let i = 0; i < text.length; i++) {
-    elm.textContent += text[i];
+    node.textContent += text[i];
     await sleep(speed);
   }
+  node.classList.remove("typing-caret");
 }
-
 async function showLoadingSequence() {
   const picks = pickRandom(FUNNY_MESSAGES, Math.floor(Math.random() * 2) + 3); // 3 or 4
   for (const msg of picks) {
-    badgeEl.className = "badge";
-    badgeEl.textContent = "…";
-    await typeText(kpdEl, msg, 14);
-    await sleep(550);
-    kpdEl.textContent = "";
+    await typeText(statusEl, msg, 16);
+    await sleep(600);
+    statusEl.textContent = "";
   }
 }
 
@@ -196,6 +195,7 @@ async function runScoring() {
   });
   const data = await r.json();
 
+  // Render result
   const pd = typeof data.prob_default === "number" ? data.prob_default : NaN;
   kpdEl.textContent = isFinite(pd) ? (pd * 100).toFixed(2) + "%" : "—";
 
@@ -205,6 +205,10 @@ async function runScoring() {
   else if (data.decision === "REJECT") { badgeEl.classList.add("reject"); badgeEl.textContent = "REJECT"; }
   else { badgeEl.textContent = "—"; }
 
+  // Show result card
+  resultEl.hidden = false;
+  statusEl.textContent = "";
+
   if (window.gsap) {
     gsap.from("#resultCard", { scale: 0.98, opacity: 0.6, duration: 0.35, ease: "power2.out" });
     gsap.from("#badge", { y: -6, duration: 0.35, ease: "power2.out" });
@@ -212,18 +216,26 @@ async function runScoring() {
   }
 }
 
-// ================= Single click handler =================
+// ================= Click handler =================
 goBtn.addEventListener("click", async () => {
+  // prepare UI
+  resultEl.hidden = true;
+  badgeEl.className = "badge";
+  badgeEl.textContent = "…";
+  kpdEl.textContent = "—";
+  statusEl.textContent = "Starting evaluation…";
+
   goBtn.disabled = true;
   try {
-    await showLoadingSequence();  // fun lines first
-    await runScoring();           // then real result
+    // Start API request in parallel with the messages to smooth UX
+    const apiPromise = runScoring(); // NOTE: kicks off fetch but we await after messages
+    await showLoadingSequence();
+    await apiPromise;               // wait for server result
   } catch (e) {
     console.error("Request failed:", e);
-    badgeEl.className = "badge";
-    badgeEl.textContent = "—";
+    badgeEl.className = "badge"; badgeEl.textContent = "—";
     kpdEl.textContent = "—";
-    alert("Something went wrong scoring this application. Please try again.");
+    statusEl.textContent = "Something went wrong. Please try again.";
   } finally {
     goBtn.disabled = false;
   }
