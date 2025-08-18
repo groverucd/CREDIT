@@ -1,38 +1,96 @@
-// ================= Base =================
+// ================= Base URL & basic labels =================
 const BASE = window.location.origin.includes("onrender.com")
   ? window.location.origin
   : "https://credit-6wok.onrender.com";
 
-const el = (id) => document.getElementById(id);
-const badgeEl = el("badge");
-const kpdEl = el("kpd");
-const goBtn = el("go");
-const resetBtn = el("reset");
-const purposeEl = el("purpose");
-const loanAmountField = el("loan-amount-field");
-const resultEl = el("result");
-const loadingMessagesEl = el("loadingMessages");
+const $ = (id) => document.getElementById(id);
+const apiBase = $("apiBase");
+if (apiBase) apiBase.textContent = BASE;
+const year = $("year");
+if (year) year.textContent = new Date().getFullYear();
 
-const apiBase = el("apiBase"); if (apiBase) apiBase.textContent = BASE;
-const year = el("year"); if (year) year.textContent = new Date().getFullYear();
+// ================= Three.js Starfield (subtle) =================
+(() => {
+  const canvas = $("bg3d");
+  if (!window.THREE || !canvas) return;
+  const { Scene, PerspectiveCamera, WebGLRenderer, PointsMaterial, BufferGeometry, Float32BufferAttribute, Points, Color } = THREE;
 
-// ================= GSAP (optional) =================
+  const scene = new Scene();
+  const camera = new PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
+  camera.position.z = 5;
+
+  const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.setSize(innerWidth, innerHeight);
+
+  // Stars
+  const count = 800;
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count * 3; i += 3) {
+    positions[i]   = (Math.random() - 0.5) * 20;
+    positions[i+1] = (Math.random() - 0.5) * 12;
+    positions[i+2] = Math.random() * -20;
+  }
+  const geom = new BufferGeometry();
+  geom.setAttribute('position', new Float32BufferAttribute(positions, 3));
+  const mat = new PointsMaterial({ size: 0.02, color: new Color("#8ab4ff") });
+  const stars = new Points(geom, mat);
+  scene.add(stars);
+
+  const onResize = () => { camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); };
+  addEventListener("resize", onResize);
+
+  let t = 0;
+  const loop = () => {
+    t += 0.0025;
+    camera.position.x = Math.sin(t) * 0.3;
+    camera.position.y = Math.cos(t*0.7) * 0.15;
+    camera.lookAt(0,0,0);
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  };
+  loop();
+})();
+
+// ================= GSAP scroll magic =================
 (() => {
   if (!window.gsap) return;
-  const { gsap } = window;
-  if (window.ScrollTrigger) gsap.registerPlugin(window.ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger);
 
+  // Hero text in
   gsap.from(".hero-title", { y: 20, opacity: 0, duration: 0.9, ease: "power3.out" });
   gsap.from(".hero-sub", { y: 16, opacity: 0, duration: 0.8, delay: 0.15, ease: "power3.out" });
   gsap.from(".cta-row a", { y: 12, opacity: 0, duration: 0.7, delay: 0.3, ease: "power3.out", stagger: 0.08 });
 
-  gsap.from(".panel", {
-    scrollTrigger: { trigger: ".panels", start: "top 75%" },
-    y: 22, opacity: 0, duration: 0.8, ease: "power3.out", stagger: 0.1
+  // Bars animate when visible
+  gsap.utils.toArray(".viz-bars .bar").forEach((g) => {
+    const rect = g.querySelector("rect");
+    const w = parseFloat(g.getAttribute("data-w") || "160");
+    gsap.fromTo(rect, { width: 0 }, {
+      width: w, duration: 1, ease: "power2.out",
+      scrollTrigger: { trigger: ".viz-bars", start: "top 80%" }
+    });
+  });
+
+  // Slides pop in
+  gsap.from(".slide", {
+    scrollTrigger: { trigger: ".training", start: "top 70%" },
+    y: 24, opacity: 0, duration: 0.7, stagger: 0.12, ease: "power2.out"
+  });
+
+  // Pin hero subtle parallax
+  gsap.to("#hero .hero-inner", {
+    scrollTrigger: {
+      trigger: "#hero",
+      start: "top top",
+      end: "bottom top",
+      scrub: true
+    },
+    yPercent: -10
   });
 })();
 
-// ================= Helpers =================
+// ================= Helpers & feature transforms =================
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 const pct = (num, den) => (den > 0 ? (num / den) * 100 : 0);
 const subGradeNum = (sg) => {
@@ -43,68 +101,91 @@ const subGradeNum = (sg) => {
   return (letter - 1) * 5 + num; // 1..35
 };
 
-// ================= Show/hide Desired Loan Amount =================
-function updateLoanAmountVisibility() {
+// ================= Wizard logic (4 steps) =================
+const steps = Array.from(document.querySelectorAll(".step"));
+const dots  = Array.from(document.querySelectorAll("[data-step-dot]"));
+let current = 0;
+
+function showStep(i) {
+  current = i;
+  steps.forEach((s, idx) => {
+    if (idx === i) {
+      s.classList.add("active");
+      if (window.gsap) gsap.fromTo(s, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: .35, ease: "power2.out" });
+    } else {
+      s.classList.remove("active");
+    }
+  });
+  dots.forEach((d, idx) => d.classList.toggle("active", idx <= i));
+}
+function nextStep(){ if (current < steps.length - 1) showStep(current + 1); }
+function prevStep(){ if (current > 0) showStep(current - 1); }
+
+// Buttons
+document.querySelectorAll(".step .next").forEach(btn => btn.addEventListener("click", nextStep));
+document.querySelectorAll(".step .prev").forEach(btn => btn.addEventListener("click", prevStep));
+
+// Hide loan amount if purpose = credit_card
+const purposeEl = $("purpose");
+const loanAmountField = $("loan-amount-field");
+function updateLoanAmountVisibility(){
   loanAmountField.style.display = (purposeEl.value === "credit_card") ? "none" : "";
 }
 purposeEl.addEventListener("change", updateLoanAmountVisibility);
 updateLoanAmountVisibility();
 
-// ================= Reset =================
-resetBtn.addEventListener("click", () => {
+// Reset
+const badgeEl = $("badge");
+const kpdEl   = $("kpd");
+const resetBtn = $("reset");
+if (resetBtn) resetBtn.addEventListener("click", () => {
   document.querySelectorAll("input[type=number]").forEach((inp) => {
-    switch (inp.id) {
-      case "revol_util": inp.value = 30; break;
-      case "open_acc": inp.value = 5; break;
-      case "inq6": inp.value = 1; break;
-      case "monthly_income": inp.value = 5000; break;
-      case "monthly_debt": inp.value = 500; break;
-      case "loan_amount": inp.value = 10000; break;
-      case "delinq_2yrs": inp.value = 0; break;
-      case "pub_rec": inp.value = 0; break;
-      default: break;
-    }
+    const id = inp.id;
+    const defaults = {
+      revol_util: 30, open_acc: 5, inq6: 1, monthly_income: 5000,
+      monthly_debt: 500, loan_amount: 10000, delinq_2yrs: 0, pub_rec: 0
+    };
+    inp.value = (id in defaults) ? defaults[id] : (inp.min || 0);
   });
-  el("emp_length").value = "4";
-  el("grade").value = "B";
-  el("subgrade").value = "B1";
-  el("home_ownership").value = "MORTGAGE";
-  el("any_delinq").value = "0";
-  el("any_derog").value = "0";
-  el("short_emp").value = "0";
-  el("purpose").value = "car";
-  el("term").value = "36";
+  $("emp_length").value = "4";
+  $("grade").value = "B";
+  $("subgrade").value = "B1";
+  $("home_ownership").value = "MORTGAGE";
+  $("any_delinq").value = "0";
+  $("any_derog").value = "0";
+  $("short_emp").value = "0";
+  $("term").value = "36";
+  $("purpose").value = "car";
   updateLoanAmountVisibility();
 
-  badgeEl.className = "badge";
-  badgeEl.textContent = "—";
+  badgeEl.className = "badge"; badgeEl.textContent = "—";
   kpdEl.textContent = "—";
-  loadingMessagesEl.textContent = "";
-  resultEl.hidden = true;
+  $("status").textContent = "";
+  $("result").hidden = true;
+  showStep(0);
 });
 
 // ================= Payload builder (17 model features) =================
-function makePayload() {
-  const getN = (id) => parseFloat(el(id).value || 0);
-  const getI = (id) => parseInt(el(id).value || 0, 10);
+function makePayload(){
+  const getN = (id) => parseFloat($(id).value || 0);
+  const getI = (id) => parseInt($(id).value || 0, 10);
 
   const delinq_2yrs = getI("delinq_2yrs");
   const monthly_income = getN("monthly_income");
   const monthly_debt = getN("monthly_debt");
   const emp_length_num = getI("emp_length");
-  const grade = el("grade").value;
-  const subgrade = el("subgrade").value;
-  const home_ownership = el("home_ownership").value;
+  const grade = $("grade").value;
+  const subgrade = $("subgrade").value;
+  const home_ownership = $("home_ownership").value;
   const inq_last_6mths = getI("inq6");
   const open_acc = getI("open_acc");
   const revol_util = clamp(getN("revol_util"), 0, 100);
   const pub_rec = getI("pub_rec");
-  const last_delinq_none = el("any_delinq").value === "0" ? 1 : 0;
-  const last_major_derog_none = el("any_derog").value === "0" ? 1 : 0;
+  const last_delinq_none = $("any_delinq").value === "0" ? 1 : 0;
+  const last_major_derog_none = $("any_derog").value === "0" ? 1 : 0;
   const short_emp = getI("short_emp");
-  const purpose = el("purpose").value;
+  const purpose = $("purpose").value;
 
-  // Derived for current model (no direct loan_amount/term in baseline model)
   const dti = clamp(pct(monthly_debt, monthly_income), 0, 100);
   const payment_inc_ratio = dti;
   const delinq_2yrs_zero = delinq_2yrs === 0 ? 1 : 0;
@@ -129,10 +210,11 @@ function makePayload() {
     revol_util,
     short_emp,
     sub_grade_num
+    // NOTE: loan_amount/term intentionally not sent (model not trained with them yet).
   };
 }
 
-// ================= Fun loading sequence =================
+// ================= Funny loading sequence =================
 const FUNNY_MESSAGES = [
   "Calculating your score—powered by state-of-the-art algorithms and questionable office snacks...",
   "Reviewing your application, your credit history, and your Spotify playlist for good measure...",
@@ -155,87 +237,95 @@ const FUNNY_MESSAGES = [
   "Verifying your income and your ability to say “synergy” in meetings...",
   "Consulting the credit gods and crossing our fingers for a positive outcome..."
 ];
+const sleep = (ms) => new Promise(res => setTimeout(res, ms));
 
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
-
-function pickRandom(arr, n) {
+function pickRandom(arr, n){
   const pool = [...arr], out = [];
-  while (out.length < n && pool.length) {
-    out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  while(out.length < n && pool.length){
+    out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
   }
   return out;
 }
-
-async function typeText(node, text, speed = 40) {
-  node.classList.add("typing-caret");
-  node.textContent = "";
-  for (let i = 0; i < text.length; i++) {
-    node.textContent += text[i];
-    await sleep(speed);           // typing speed
+async function typeText(el, text, speed = 22){
+  el.textContent = "";
+  el.classList.add("typing-caret");
+  for (let i=0; i<text.length; i++){
+    el.textContent += text[i];
+    await sleep(speed);
   }
-  node.classList.remove("typing-caret");
-  await sleep(700);               // hold message after typing
+  el.classList.remove("typing-caret");
+}
+async function showLoadingSequence(statusEl){
+  const count = 3 + Math.floor(Math.random()*2); // 3 or 4
+  const lines = pickRandom(FUNNY_MESSAGES, count);
+  for (const line of lines){
+    await typeText(statusEl, line, 22);   // readable typing speed
+    await sleep(800);                     // short hold before next
+    statusEl.textContent = "";
+  }
 }
 
-async function showLoadingSequence() {
-  const count = 3 + Math.floor(Math.random() * 2); // 3–4 messages
-  const picks = pickRandom(FUNNY_MESSAGES, count);
-  for (const msg of picks) {
-    await typeText(loadingMessagesEl, msg, 42); // slower so it’s readable
-  }
-  loadingMessagesEl.textContent = "";
-}
-
-// ================= Call API and render =================
-async function runScoring() {
+// ================= Call API & render result =================
+async function runScoring(){
   const payload = makePayload();
-
   const r = await fetch(`${BASE}/predict`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type":"application/json"},
     body: JSON.stringify(payload)
   });
-  const data = await r.json();
+  return r.json();
+}
+function renderDecision(data){
+  const resultEl = $("result");
+  const pd = (typeof data.prob_default === "number") ? data.prob_default : NaN;
+  $("kpd").textContent = isFinite(pd) ? (pd*100).toFixed(2) + "%" : "—";
 
-  const pd = typeof data.prob_default === "number" ? data.prob_default : NaN;
-  kpdEl.textContent = isFinite(pd) ? (pd * 100).toFixed(2) + "%" : "—";
+  const badge = $("badge");
+  badge.className = "badge";
+  if (data.decision === "APPROVE") { badge.classList.add("approve"); badge.textContent = "APPROVE"; }
+  else if (data.decision === "CONDITIONAL") { badge.classList.add("conditional"); badge.textContent = "CONDITIONAL"; }
+  else if (data.decision === "REJECT") { badge.classList.add("reject"); badge.textContent = "REJECT"; }
+  else { badge.textContent = "—"; }
 
-  badgeEl.className = "badge";
-  if (data.decision === "APPROVE") { badgeEl.classList.add("approve"); badgeEl.textContent = "APPROVE"; }
-  else if (data.decision === "CONDITIONAL") { badgeEl.classList.add("conditional"); badgeEl.textContent = "CONDITIONAL"; }
-  else if (data.decision === "REJECT") { badgeEl.classList.add("reject"); badgeEl.textContent = "REJECT"; }
-  else { badgeEl.textContent = "—"; }
-
-  // reveal result and animate
   resultEl.hidden = false;
-  if (window.gsap) {
+  if (window.gsap){
     gsap.from("#resultCard", { scale: 0.98, opacity: 0.6, duration: 0.35, ease: "power2.out" });
     gsap.from("#badge", { y: -6, duration: 0.35, ease: "power2.out" });
     gsap.from("#kpd", { y: 6, duration: 0.35, ease: "power2.out" });
   }
 }
 
-// ================= Single click handler =================
-goBtn.addEventListener("click", async () => {
-  // reset decision panel
-  resultEl.hidden = true;
-  badgeEl.className = "badge";
-  badgeEl.textContent = "—";
-  kpdEl.textContent = "—";
-  loadingMessagesEl.textContent = "Starting evaluation…";
+// ================= Score button =================
+const goBtn = $("go");
+if (goBtn){
+  goBtn.addEventListener("click", async () => {
+    const statusEl = $("status");
+    const resultEl = $("result");
 
-  goBtn.disabled = true;
-  try {
-    // do the messages first…
-    await showLoadingSequence();
-    // …then fetch and show the real result
-    await runScoring();
-  } catch (e) {
-    console.error("Request failed:", e);
-    badgeEl.className = "badge"; badgeEl.textContent = "—";
-    kpdEl.textContent = "—";
-    loadingMessagesEl.textContent = "Something went wrong. Please try again.";
-  } finally {
+    // UI state
+    goBtn.disabled = true;
+    resultEl.hidden = true;
+    statusEl.textContent = "Starting evaluation…";
+
+    // Start API call in parallel, but do NOT render yet.
+    const apiPromise = runScoring().catch(err => ({ error: String(err) }));
+
+    // Run the full typed sequence first
+    await showLoadingSequence(statusEl);
+
+    // Then consume API result and render
+    const data = await apiPromise;
+    statusEl.textContent = "";
+    if (data && !data.error) {
+      renderDecision(data);
+      // Jump to result view smoothly
+      if (window.gsap){
+        gsap.to(window, { duration: 0.5, scrollTo: "#resultCard", ease: "power2.out" });
+      }
+    } else {
+      statusEl.textContent = "Something went wrong. Please try again.";
+    }
+
     goBtn.disabled = false;
-  }
-});
+  });
+}
