@@ -1,270 +1,206 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Credit Scoring — Demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root { --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb; --accent:#60a5fa; --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,Segoe UI,Roboto,Helvetica,Arial}
-    .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
-    h1{font-size:28px;margin:0 0 18px}
-    p.muted{color:var(--muted);margin:0 0 24px}
-    .grid{display:grid;grid-template-columns:repeat(4,minmax(240px,1fr));gap:14px}
-    .field{display:flex;flex-direction:column;gap:6px}
-    label{font-size:12px;color:var(--muted)}
-    .help{font-size:12px;color:var(--muted)}
-    input,select{background:#0b1220;border:1px solid #1f2937;border-radius:10px;color:var(--text);padding:12px 12px}
-    input:focus,select:focus{outline:2px solid var(--accent)}
-    .actions{margin:16px 0 8px}
-    button{background:var(--accent);border:0;border-radius:12px;padding:12px 18px;color:#0b1220;font-weight:600;cursor:pointer}
-    button:disabled{opacity:.6;cursor:not-allowed}
-    .panel{background:var(--panel);border:1px solid #1f2937;border-radius:14px;padding:16px;margin:18px 0}
-    .row{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
-    .metric{display:flex;flex-direction:column}
-    .metric .k{font-size:34px;font-weight:800}
-    .badge{display:inline-flex;align-items:center;gap:8px;background:#0b1220;border:1px solid #1f2937;border-radius:999px;padding:8px 12px;font-weight:700}
-    .approve{color:var(--ok)} .conditional{color:var(--warn)} .reject{color:var(--bad)}
-    pre{white-space:pre-wrap;word-break:break-word;margin:0}
-    .footer{margin-top:28px;color:var(--muted);font-size:12px}
-    @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:540px){.grid{grid-template-columns:1fr}}
-  </style>
+  <meta charset="utf-8"/>
+  <title>Credit Scoring — See How Lenders Evaluate You</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#0b0f1a">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="wrap">
-    <h1>Credit Scoring Demo</h1>
-    <p class="muted">Fill the form and click Score. We map your answers to the model’s 17 features on the server.</p>
+  <!-- ====== HERO ====== -->
+  <header class="hero" id="hero">
+    <nav class="nav">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>Credit Scoring</span>
+      </div>
+      <a class="nav-btn" href="#app">Try the Demo</a>
+    </nav>
 
-    <div class="grid">
-      <div class="field">
-        <label>Delinquencies (60+ days) in last 2 yrs</label>
-        <input id="delinq_2yrs" type="number" min="0" value="0">
+    <div class="hero-inner">
+      <h1 class="hero-title">
+        See how lenders evaluate your application
+      </h1>
+      <p class="hero-sub">
+        Enter your details and get instant, clear results on approval status and default risk,
+        using modern machine learning techniques.
+      </p>
+      <div class="cta-row">
+        <a href="#app" class="cta">Start Scoring</a>
+        <a href="/docs" class="ghost">View API</a>
       </div>
-
-      <div class="field">
-        <label>Monthly Income</label>
-        <input id="monthly_income" type="number" min="0" value="5000">
-        <div class="help">Used with “Current Monthly Debt” to compute DTI.</div>
-      </div>
-
-      <div class="field">
-        <label>Current Monthly Debt (ex-housing)</label>
-        <input id="monthly_debt" type="number" min="0" value="500">
-        <div class="help">Include credit card minimums and other loans.</div>
-      </div>
-
-      <div class="field" id="loan-amount-field">
-        <label>Desired Loan Amount</label>
-        <input id="loan_amount" type="number" min="0" value="10000">
-      </div>
-
-      <div class="field">
-        <label>Assumed Term (months)</label>
-        <select id="term">
-          <option>36</option><option>60</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Employment Length</label>
-        <select id="emp_length">
-          <option value="0">&lt; 1 year</option>
-          <option value="1">1–2 years</option>
-          <option value="4" selected>3–5 years</option>
-          <option value="8">6–9 years</option>
-          <option value="10">10+ years</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Grade</label>
-        <select id="grade">
-          <option>A</option><option selected>B</option><option>C</option><option>D</option>
-          <option>E</option><option>F</option><option>G</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Sub-Grade</label>
-        <select id="subgrade">
-          <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option><option value="A4">A4</option><option value="A5">A5</option>
-          <option value="B1" selected>B1</option><option value="B2">B2</option><option value="B3">B3</option><option value="B4">B4</option><option value="B5">B5</option>
-          <option value="C1">C1</option><option value="C2">C2</option><option value="C3">C3</option><option value="C4">C4</option><option value="C5">C5</option>
-          <option value="D1">D1</option><option value="D2">D2</option><option value="D3">D3</option><option value="D4">D4</option><option value="D5">D5</option>
-          <option value="E1">E1</option><option value="E2">E2</option><option value="E3">E3</option><option value="E4">E4</option><option value="E5">E5</option>
-          <option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option><option value="F4">F4</option><option value="F5">F5</option>
-          <option value="G1">G1</option><option value="G2">G2</option><option value="G3">G3</option><option value="G4">G4</option><option value="G5">G5</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Home Ownership</label>
-        <select id="home_ownership">
-          <option>RENT</option><option selected>MORTGAGE</option><option>OWN</option><option>OTHER</option>
-        </select>
-      </div>
-
-      <div class="field"><label>Hard Inquiries (last 6 months)</label><input id="inq6" type="number" min="0" value="1"></div>
-      <div class="field"><label>Open Credit Accounts</label><input id="open_acc" type="number" min="0" value="5"></div>
-      <div class="field"><label>Credit Utilization %</label><input id="revol_util" type="number" min="0" max="100" value="30"></div>
-      <div class="field"><label>Public Records (liens, judgments)</label><input id="pub_rec" type="number" min="0" value="0"></div>
-
-      <div class="field">
-        <label>Any delinquency ever reported?</label>
-        <select id="any_delinq"><option value="0" selected>No</option><option value="1">Yes</option></select>
-      </div>
-      <div class="field">
-        <label>Any major derogatory (BK/charge-off)?</label>
-        <select id="any_derog"><option value="0" selected>No</option><option value="1">Yes</option></select>
-      </div>
-      <div class="field">
-        <label>Short Employment (&lt; 1 year)?</label>
-        <select id="short_emp"><option value="0" selected>No</option><option value="1">Yes</option></select>
-      </div>
-
-      <div class="field">
-        <label>Purpose of Loan</label>
-        <select id="purpose">
-          <option value="credit_card">credit card</option>
-          <option value="debt_consolidation">debt_consolidation</option>
-          <option value="car" selected>car</option>
-          <option value="home_improvement">home_improvement</option>
-          <option value="medical">medical</option>
-          <option value="small_business">small_business</option>
-          <option value="other">other</option>
-        </select>
-      </div>
+      <div class="hero-glow"></div>
     </div>
 
-    <div class="actions"><button id="go">Score Application</button></div>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="mouse"></div>
+    </div>
+  </header>
 
-    <div class="panel">
-      <div class="row">
-        <span id="badge" class="badge conditional">—</span>
-        <div class="metric"><div class="k" id="kpd">—</div><div class="muted">Probability of Default</div></div>
+  <!-- ====== APP SECTION ====== -->
+  <main class="wrap" id="app">
+    <section class="panels">
+      <!-- Left: Form -->
+      <div class="panel form-panel" id="formPanel">
+        <h2 class="panel-title">Your Application</h2>
+
+        <div class="grid">
+          <div class="field">
+            <label>Delinquencies (60+ days) in last 2 yrs</label>
+            <input id="delinq_2yrs" type="number" min="0" value="0">
+          </div>
+
+          <div class="field">
+            <label>Monthly Income</label>
+            <input id="monthly_income" type="number" min="0" value="5000">
+            <div class="hint">Used with “Monthly Debt” to compute DTI.</div>
+          </div>
+
+          <div class="field">
+            <label>Current Monthly Debt (ex-housing)</label>
+            <input id="monthly_debt" type="number" min="0" value="500">
+          </div>
+
+          <div class="field" id="loan-amount-field">
+            <label>Desired Loan Amount</label>
+            <input id="loan_amount" type="number" min="0" value="10000">
+          </div>
+
+          <div class="field">
+            <label>Assumed Term (months)</label>
+            <select id="term">
+              <option>36</option><option>60</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Employment Length</label>
+            <select id="emp_length">
+              <option value="0">&lt; 1 year</option>
+              <option value="1">1–2 years</option>
+              <option value="4" selected>3–5 years</option>
+              <option value="8">6–9 years</option>
+              <option value="10">10+ years</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Grade</label>
+            <select id="grade">
+              <option>A</option><option selected>B</option><option>C</option><option>D</option>
+              <option>E</option><option>F</option><option>G</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Sub-Grade</label>
+            <select id="subgrade">
+              <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option><option value="A4">A4</option><option value="A5">A5</option>
+              <option value="B1" selected>B1</option><option value="B2">B2</option><option value="B3">B3</option><option value="B4">B4</option><option value="B5">B5</option>
+              <option value="C1">C1</option><option value="C2">C2</option><option value="C3">C3</option><option value="C4">C4</option><option value="C5">C5</option>
+              <option value="D1">D1</option><option value="D2">D2</option><option value="D3">D3</option><option value="D4">D4</option><option value="D5">D5</option>
+              <option value="E1">E1</option><option value="E2">E2</option><option value="E3">E3</option><option value="E4">E4</option><option value="E5">E5</option>
+              <option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option><option value="F4">F4</option><option value="F5">F5</option>
+              <option value="G1">G1</option><option value="G2">G2</option><option value="G3">G3</option><option value="G4">G4</option><option value="G5">G5</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Home Ownership</label>
+            <select id="home_ownership">
+              <option>RENT</option><option selected>MORTGAGE</option><option>OWN</option><option>OTHER</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Hard Inquiries (last 6 months)</label>
+            <input id="inq6" type="number" min="0" value="1">
+          </div>
+
+          <div class="field">
+            <label>Open Credit Accounts</label>
+            <input id="open_acc" type="number" min="0" value="5">
+          </div>
+
+          <div class="field">
+            <label>Credit Utilization %</label>
+            <input id="revol_util" type="number" min="0" max="100" value="30">
+          </div>
+
+          <div class="field">
+            <label>Public Records (liens, judgments)</label>
+            <input id="pub_rec" type="number" min="0" value="0">
+          </div>
+
+          <div class="field">
+            <label>Any delinquency ever reported?</label>
+            <select id="any_delinq"><option value="0" selected>No</option><option value="1">Yes</option></select>
+          </div>
+
+          <div class="field">
+            <label>Any major derogatory (BK/charge-off)?</label>
+            <select id="any_derog"><option value="0" selected>No</option><option value="1">Yes</option></select>
+          </div>
+
+          <div class="field">
+            <label>Short Employment (&lt; 1 year)?</label>
+            <select id="short_emp"><option value="0" selected>No</option><option value="1">Yes</option></select>
+          </div>
+
+          <div class="field">
+            <label>Purpose of Loan</label>
+            <select id="purpose">
+              <option value="credit_card">credit card</option>
+              <option value="debt_consolidation">debt_consolidation</option>
+              <option value="car" selected>car</option>
+              <option value="home_improvement">home_improvement</option>
+              <option value="medical">medical</option>
+              <option value="small_business">small_business</option>
+              <option value="other">other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button id="go" class="btn-primary">
+            <span class="btn-ico">⚡</span> Score Application
+          </button>
+          <button id="reset" class="btn-ghost">Reset</button>
+        </div>
       </div>
-      <div class="panel" style="margin-top:12px"><pre id="out">{}</pre>
+
+      <!-- Right: Result -->
+      <div class="panel result-panel" id="resultPanel">
+        <h2 class="panel-title">Decision</h2>
+        <div class="result-card" id="resultCard">
+          <div class="badge" id="badge">—</div>
+          <div class="pd">
+            <div class="pd-k" id="kpd">—</div>
+            <div class="pd-sub">Probability of Default</div>
+          </div>
+        </div>
+
+        <div class="note">
+          Thresholds (server): 
+          <code>&lt;= THRESH_APPROVE → APPROVE, between → CONDITIONAL, &gt;= THRESH_REJECT → REJECT</code>
+        </div>
       </div>
-    <div class="footer">API: <span id="api"></span></div>
-  </div>
+    </section>
 
-<script>
-  const BASE = window.location.origin.includes("onrender.com")
-    ? window.location.origin
-    : "https://credit-6wok.onrender.com";
+    <footer class="foot">
+      <div>API base: <span id="apiBase"></span></div>
+      <div>© <span id="year"></span> Credit Scoring Demo</div>
+    </footer>
+  </main>
 
-  // --- helpers ---
-  const subGradeNum = (sg) => {
-    const m = /^([A-G])([1-5])$/.exec(String(sg).toUpperCase().trim());
-    if (!m) return 10;                 // safe middle fallback
-    const letter = m[1].charCodeAt(0) - 64; // A=1..G=7 -> 1..7
-    const num = parseInt(m[2], 10);         // 1..5
-    return (letter - 1) * 5 + num;          // 1..35
-  };
-  const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
-  const pct = (num, den) => den > 0 ? (num / den) * 100 : 0;
-
-  // --- UI: hide loan amount when purpose is credit_card ---
-  const purposeEl = document.getElementById('purpose');
-  const loanField = document.getElementById('loan-amount-field');
-  function toggleLoanField() {
-    if (purposeEl.value === 'credit_card') {
-      loanField.style.display = 'none';
-    } else {
-      loanField.style.display = '';
-    }
-  }
-  purposeEl.addEventListener('change', toggleLoanField);
-  toggleLoanField(); // run once on load
-
-  // --- main submit ---
-  document.getElementById('go').addEventListener('click', async () => {
-    // read inputs
-    const delinq_2yrs = parseInt(document.getElementById('delinq_2yrs').value || 0, 10);
-    const monthly_income = parseFloat(document.getElementById('monthly_income').value || 0);
-    const monthly_debt = parseFloat(document.getElementById('monthly_debt').value || 0);
-    const emp_length_num = parseInt(document.getElementById('emp_length').value, 10);
-    const grade = document.getElementById('grade').value;
-    const subgrade = document.getElementById('subgrade').value;
-    const home_ownership = document.getElementById('home_ownership').value;
-    const inq_last_6mths = parseInt(document.getElementById('inq6').value || 0, 10);
-    const open_acc = parseInt(document.getElementById('open_acc').value || 0, 10);
-    const revol_util = clamp(parseFloat(document.getElementById('revol_util').value || 0), 0, 100);
-    const pub_rec = parseInt(document.getElementById('pub_rec').value || 0, 10);
-    const last_delinq_none = document.getElementById('any_delinq').value === "0" ? 1 : 0;
-    const last_major_derog_none = document.getElementById('any_derog').value === "0" ? 1 : 0;
-    const short_emp = parseInt(document.getElementById('short_emp').value, 10);
-    const purpose = purposeEl.value;
-    const loan_amount = parseFloat(document.getElementById('loan_amount').value || 0);
-    const term = parseInt(document.getElementById('term').value, 10);
-
-    // derive required features
-    const sub_grade_num = subGradeNum(subgrade);
-    const delinq_2yrs_zero = delinq_2yrs === 0 ? 1 : 0;
-    const pub_rec_zero = pub_rec === 0 ? 1 : 0;
-
-    // IMPORTANT: make loan amount & term actually affect the model via DTI
-    // Estimate a rough monthly payment (simple principal/term approximation).
-    const est_monthly_payment = term > 0 ? (loan_amount / term) : 0;
-    const dti = clamp(pct(monthly_debt + est_monthly_payment, monthly_income), 0, 100);
-    const payment_inc_ratio = dti; // reuse as a stand-in (matches your server/model schema)
-
-    const payload = {
-      delinq_2yrs,
-      delinq_2yrs_zero,
-      dti,
-      emp_length_num,
-      grade,
-      home_ownership,
-      inq_last_6mths,
-      last_delinq_none,
-      last_major_derog_none,
-      open_acc,
-      payment_inc_ratio,
-      pub_rec,
-      pub_rec_zero,
-      purpose,
-      revol_util,
-      short_emp,
-      sub_grade_num
-    };
-
-    const badge = document.getElementById('badge');
-    const kpd = document.getElementById('kpd');
-
-    try {
-      document.getElementById('go').disabled = true;
-      const r = await fetch(`${BASE}/predict`, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(payload)
-      });
-      const data = await r.json();
-
-      // Update PD text
-      const pd = typeof data.prob_default === "number" ? data.prob_default : NaN;
-      kpd.textContent = isFinite(pd) ? (pd * 100).toFixed(2) + "%" : "—";
-
-      // Update decision badge
-      badge.className = "badge";
-      if (data.decision === "APPROVE") { badge.classList.add("approve"); badge.textContent="APPROVE"; }
-      else if (data.decision === "CONDITIONAL") { badge.classList.add("conditional"); badge.textContent="CONDITIONAL"; }
-      else if (data.decision === "REJECT") { badge.classList.add("reject"); badge.textContent="REJECT"; }
-      else { badge.textContent = "—"; }
-
-      // (Optional) if you kept the <pre id="out">, you can comment the next line to hide raw JSON
-      // document.getElementById('out').textContent = JSON.stringify(data, null, 2);
-    } catch (e) {
-      kpd.textContent = "—";
-      badge.className = "badge";
-      badge.textContent = "—";
-      console.error("Request failed:", e);
-    } finally {
-      document.getElementById('go').disabled = false;
-    }
-  });
-</script>
+  <!-- GSAP -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <!-- App -->
+  <script src="./app.js"></script>
 </body>
 </html>
