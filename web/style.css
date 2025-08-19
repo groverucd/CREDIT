@@ -20,7 +20,7 @@ newpage {
 
 #wrapper {
   overflow: hidden;
-  position: fixed;
+  position: relative;
   height: 100%;
   width: 100%;
   top: 0;
