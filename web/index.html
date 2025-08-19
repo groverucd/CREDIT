@@ -4,41 +4,29 @@
   <meta charset="utf-8" />
   <title>Credit Scoring — Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Fonts & Styles -->
   <link rel="stylesheet" href="https://use.typekit.net/nyc6jda.css">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
-  <!-- ============== Subtle 3D Background ============== -->
+  <!-- Background stars -->
   <canvas id="bg3d" aria-hidden="true"></canvas>
 
-  <!-- ============== HERO (Screen 1) ============== -->
+  <!-- ============ HERO ============ -->
   <header class="hero section" id="hero">
-    <nav class="nav" aria-label="Main">
-      <div class="brand">
-        <span class="dot"></span>
-        <span>Credit Scoring</span>
-      </div>
+    <!-- (Nav hidden by CSS; remove the rule to show it) -->
+    <nav class="nav">
+      <div class="brand"><span class="dot"></span><span>Credit Scoring</span></div>
       <a class="nav-btn" href="#about">Learn More</a>
     </nav>
 
-    <div class="hero-inner">
-      <h1 class="hero-title">See how lenders evaluate your application</h1>
-      <p class="hero-sub">
-        Enter your details and get instant, clear results on approval status and default risk,
-        powered by modern machine learning techniques.
-      </p>
-      <div class="cta-row">
-        <a href="#about" class="cta">How it works</a>
-        <a href="#demo" class="ghost">Try the Demo</a>
-      </div>
-      <div class="hero-glow"></div>
-    </div>
+    <!-- Headline (fades out as you leave hero) -->
+    <h1 class="hero-text outline">See how lenders evaluate your application</h1>
+    <h1 class="hero-text fill">See how lenders evaluate your application</h1>
 
-    <!-- Image mosaic with horizontal parallax -->
+    <!-- Mosaic with parallax -->
     <div id="wrapper">
       <section id="content">
-        <section class="images" aria-label="Mood images">
+        <section class="images">
           <img data-speed="0.8"  src="https://plus.unsplash.com/premium_photo-1679456904199-b41183ada968?q=80&w=927&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
           <img data-speed="0.9"  src="https://plus.unsplash.com/premium_photo-1675370203803-357a68b84bbd?q=80&w=3046&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
           <img data-speed="1.0"  src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?q=80&w=1200&auto=format&fit=crop" alt="">
@@ -57,36 +45,7 @@
     </div>
   </header>
 
-  <!-- ============== ABOUT (Screen 2) — bars viz + mouse prompt only ============== -->
-  <section class="section explain" id="about">
-    <div class="wrap explain-grid">
-      <div class="viz-card">
-        <svg viewBox="0 0 320 200" class="viz-bars" role="img" aria-label="Feature importances">
-          <defs>
-            <linearGradient id="g1" x1="0" x2="1">
-              <stop offset="0%"  stop-color="#8ab4ff"/>
-              <stop offset="100%" stop-color="#34d399"/>
-            </linearGradient>
-          </defs>
-          <g transform="translate(30,30)">
-            <text x="0" y="-8" class="viz-title">Feature Signals</text>
-            <g class="bar" data-w="220"><rect x="0" y="0"   width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">revol_util</text></g>
-            <g class="bar" data-w="190" transform="translate(0,28)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">dti</text></g>
-            <g class="bar" data-w="170" transform="translate(0,56)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">pub_rec</text></g>
-            <g class="bar" data-w="150" transform="translate(0,84)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">grade</text></g>
-            <g class="bar" data-w="130" transform="translate(0,112)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">payment_inc_ratio</text></g>
-          </g>
-        </svg>
-      </div>
-    </div>
-
-    <div class="hero-scroll in-section" aria-hidden="true">
-      <span>Scroll</span>
-      <div class="mouse"></div>
-    </div>
-  </section>
-
-  <!-- ============== DIAL (Screen 3) — horizontal, scroll‑driven ============== -->
+  <!-- ============ SCROLL-DRIVEN CREDIT DIAL (pinned) ============ -->
   <section class="section dial-section" id="dial">
     <div class="wrap dial-wrap">
       <h2 class="dial-title">Your Credit Score Range</h2>
@@ -95,26 +54,29 @@
       <div class="dial-container">
         <svg viewBox="0 0 360 200" class="dial-svg" aria-label="Credit score dial">
           <defs>
+            <!-- soft neon glow -->
             <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="4" result="b"/>
-              <feMerge>
-                <feMergeNode in="b"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
           </defs>
 
+          <!-- ticks + labels will be injected by JS -->
           <g id="ticks"></g>
 
-          <!-- background arc: left→right semicircle -->
+          <!-- background arc -->
           <path id="bg-arc"
                 d="M 30 160 A 150 150 0 0 1 330 160"
-                stroke="#233049" stroke-width="18" fill="none" stroke-linecap="round" />
-          <!-- animated arc -->
+                stroke="#233049" stroke-width="20" fill="none" stroke-linecap="round" />
+
+          <!-- progress arc (dashoffset animated) -->
           <path id="progress-arc"
                 d="M 30 160 A 150 150 0 0 1 330 160"
-                stroke="#10b981" stroke-width="18" fill="none" stroke-linecap="round"
-                filter="url(#soft-glow)" />
+                stroke="#10b981" stroke-width="20" fill="none" stroke-linecap="round"
+                filter="url(#soft-glow)"/>
+
+          <!-- pointer (moves along the arc) -->
+          <circle id="pointer" r="6" cx="30" cy="160" fill="#10b981" filter="url(#soft-glow)"/>
         </svg>
 
         <div class="score-text" id="score-text">300</div>
@@ -122,41 +84,78 @@
     </div>
   </section>
 
-  <!-- ============== TRAINING (Screen 4) ============== -->
-  <section class="section training" id="training">
-    <div class="wrap training-grid">
-      <div class="slides">
-        <div class="slide one">
-          <h3>1 — Feature Engineering</h3>
-          <p>Derived ratios (DTI), binary flags, and ordinal encodings.</p>
-        </div>
-        <div class="slide two">
-          <h3>2 — Model Training</h3>
-          <p>Random Forest with class balancing and hold‑out validation.</p>
-        </div>
-        <div class="slide three">
-          <h3>3 — Threshold Tuning</h3>
-          <p>Simple, auditable bands for consistent decisions.</p>
-        </div>
+  <!-- ============ ABOUT ============ -->
+  <section class="section explain" id="about">
+    <div class="wrap explain-grid">
+      <div class="explain-copy">
+        <h2>What the model does</h2>
+        <p>
+          Our model estimates a borrower’s <strong>probability of default (PD)</strong> from credit history & behavior.
+          Decision bands are simple: PD ≤ <code>THRESH_APPROVE</code> → <strong>APPROVE</strong>, between thresholds →
+          <strong>CONDITIONAL</strong>, PD ≥ <code>THRESH_REJECT</code> → <strong>REJECT</strong>.
+        </p>
+        <ul class="bullets">
+          <li>Sensitive to debt-to-income & utilization</li>
+          <li>Considers inquiries, delinquencies & public records</li>
+          <li>Transparent, auditable thresholds</li>
+        </ul>
       </div>
-      <div class="training-copy">
-        <h2>How we trained it</h2>
-        <p>We generated a realistic dataset across purposes (car, credit card, debt consolidation…), engineered features (DTI, sub‑grade), and trained a tree ensemble.</p>
-        <p>Then we calibrated thresholds to map PD to Approve / Conditional / Reject.</p>
+
+      <!-- Animated bars -->
+      <div class="viz-card">
+        <svg viewBox="0 0 320 200" class="viz-bars" role="img" aria-label="Feature importances">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0%" stop-color="#8ab4ff"/>
+              <stop offset="100%" stop-color="#34d399"/>
+            </linearGradient>
+          </defs>
+        <g transform="translate(30,30)">
+          <text x="0" y="-8" class="viz-title">Feature Signals</text>
+          <g class="bar" data-w="220"><rect x="0" y="0"   width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">revol_util</text></g>
+          <g class="bar" data-w="190" transform="translate(0,28)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">dti</text></g>
+          <g class="bar" data-w="170" transform="translate(0,56)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">pub_rec</text></g>
+          <g class="bar" data-w="150" transform="translate(0,84)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">grade</text></g>
+          <g class="bar" data-w="130" transform="translate(0,112)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">payment_inc_ratio</text></g>
+        </g>
+        </svg>
       </div>
     </div>
   </section>
 
-  <!-- ============== CTA (Screen 5) ============== -->
+  <!-- ============ TRAINING ============ -->
+  <section class="section training" id="training">
+    <div class="wrap training-grid">
+      <div class="training-copy">
+        <h2>How we trained it</h2>
+        <p>Realistic synthetic data, engineered features (DTI, sub‑grade), and a tree ensemble.</p>
+        <p>Thresholds calibrated to map PD → Approve / Conditional / Reject.</p>
+      </div>
+      <div class="slides">
+        <div class="slide one"><h3>1 — Feature Engineering</h3><p>Ratios, binaries, ordinals.</p></div>
+        <div class="slide two"><h3>2 — Model Training</h3><p>Random Forest + class balance.</p></div>
+        <div class="slide three"><h3>3 — Threshold Tuning</h3><p>Simple, auditable bands.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA (improved) ============ -->
   <section class="section cta" id="cta">
     <div class="wrap cta-inner">
       <h2>Ready to see it in action?</h2>
+      <p class="cta-diff">
+        Unlike generic credit demos, this one couples <strong>feature transparency</strong> (live signals and dial ticks)
+        with <strong>calibrated thresholds</strong> and an <strong>explainable loading flow</strong>—so you can see
+        what’s happening and why each decision appears.
+      </p>
       <p>Try the live demo — enter details and get an instant decision.</p>
-      <a href="#demo" class="cta big">Try the Demo</a>
+      <a href="#demo" class="cta big cta-animated">Try the Demo</a>
+      <div class="cta-glow"></div>
+      <div class="cta-particles" aria-hidden="true"></div>
     </div>
   </section>
 
-  <!-- ============== DEMO (Screen 6) ============== -->
+  <!-- ============ DEMO WIZARD ============ -->
   <main class="wrap demo" id="demo">
     <h2 class="demo-title">Your Application</h2>
 
@@ -256,10 +255,15 @@
           <div id="result" hidden>
             <div class="result-card" id="resultCard">
               <div class="badge" id="badge">—</div>
-              <div class="pd"><div class="pd-k" id="kpd">—</div><div class="pd-sub">Probability of Default</div></div>
+              <div class="pd">
+                <div class="pd-k" id="kpd">—</div>
+                <div class="pd-sub">Probability of Default</div>
+              </div>
             </div>
             <div class="note">
-              Thresholds (server): <code>&lt;= THRESH_APPROVE → APPROVE, between → CONDITIONAL, &gt;= THRESH_REJECT → REJECT</code>
+              Thresholds: <code>&lt;= THRESH_APPROVE → APPROVE</code> •
+              <code>between → CONDITIONAL</code> •
+              <code>&gt;= THRESH_REJECT → REJECT</code>
             </div>
           </div>
         </div>
@@ -275,10 +279,9 @@
   <!-- Vendor libs -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
   <!-- App -->
-  <script src="app.js?v=7" defer></script>
+  <script src="app.js?v=8" defer></script>
 </body>
 </html>
