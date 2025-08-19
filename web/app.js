@@ -89,7 +89,38 @@ if (year) year.textContent = new Date().getFullYear();
     yPercent: -10
   });
 })();
+  // ================= Dial Scroll Animation =================
+  const arc = document.getElementById("progress-arc");
+  const scoreText = document.getElementById("score-text");
+  if (arc && scoreText) {
+    const arcLength = 377;
+    const minScore = 300;
+    const maxScore = 850;
 
+    gsap.to(arc, {
+      strokeDashoffset: 0,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".dial-section",
+        start: "top center",
+        end: "bottom center",
+        scrub: true
+      },
+      onUpdate: function () {
+        const progress = this.progress();
+        const score = Math.round(minScore + progress * (maxScore - minScore));
+        scoreText.textContent = score;
+
+        let color;
+        if (score < 500) color = "var(--bad)";      // red
+        else if (score < 700) color = "var(--warn)"; // yellow
+        else color = "var(--ok)";                    // green
+
+        arc.setAttribute("stroke", color);
+        scoreText.style.color = color;
+      }
+    });
+  }
 // ================= Helpers & feature transforms =================
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 const pct = (num, den) => (den > 0 ? (num / den) * 100 : 0);
