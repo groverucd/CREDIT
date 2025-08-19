@@ -4,8 +4,11 @@
   <meta charset="utf-8" />
   <title>Credit Scoring — Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Styles & App -->
+  <link rel="stylesheet" href="https://use.typekit.net/nyc6jda.css">
   <link rel="stylesheet" href="style.css?v=5">
+  <link rel="https://assets.codepen.io/16327/gsap-latest-beta.min.js?r=v3.12.0">
+  <link rel="https://assets.codepen.io/16327/ScrollTrigger.min.js?r=v3.12.0">
+  <link rel ="https://assets.codepen.io/16327/ScrollSmoother.min.js">
 </head>
 <body>
   <!-- ================== 3D Background ================== -->
@@ -21,18 +24,24 @@
       <a class="nav-btn" href="#about">Learn More</a>
     </nav>
 
-    <div class="hero-inner">
-      <h1 class="hero-title">See how lenders evaluate your application</h1>
-      <p class="hero-sub">
-        Enter your details and get instant, clear results on approval status and default risk,
-        powered by modern machine learning techniques.
-      </p>
-      <div class="cta-row">
-        <a href="#about" class="cta">How it works</a>
-        <a href="#demo" class="ghost">Try the Demo</a>
-      </div>
-      <div class="hero-glow"></div>
-    </div>
+  <h1 class="text">See how lenders evaluate your application</h1>
+<h6 aria-hidden="true" class="text outline-text">Enter your details and get instant, clear results on approval status and default risk</h6>
+<h1 aria-hidden="true" class="text filter-text">Powered by modern machine learning techniques.</h1>
+
+<div id="wrapper">
+	<section id="content">
+		<section class="images">
+			<img data-speed="0.8" src="https://unsplash.com/photos/white-and-blue-magnetic-card-RJQE64NmC_o" alt="">
+			<img data-speed="0.9" src="https://unsplash.com/photos/a-pile-of-green-buttons-sitting-on-top-of-each-other-o-jaM48enKw" alt="">
+			<img data-speed="1" src="https://unsplash.com/photos/white-and-red-wooden-house-beside-grey-framed-magnifying-glass-NpTbVOkkom8" alt="">
+			<img data-speed="1.1" src="https://unsplash.com/photos/person-holding-brown-leather-bifold-wallet-3aGZ7a97qwA" alt="">
+			<img data-speed="0.9" src="https://unsplash.com/photos/a-group-of-credit-cards-sitting-next-to-a-cell-phone-EjAkfNQb46k" alt="">
+			<img data-speed="1.2" src="https://unsplash.com/photos/an-american-flag-flying-in-front-of-a-tall-building-fAVQ9uCROSw" alt="">
+			<img data-speed="0.8" src="https://unsplash.com/photos/a-close-up-of-a-one-dollar-bill-wTO6MWpMrJk" alt="">
+			<img data-speed="1" src="https://unsplash.com/photos/a-bunch-of-money-sitting-on-top-of-a-red-surface-algPB9x9gEQ" alt="">
+		</section>
+	</section>
+</div>
 
     <div class="hero-scroll">
       <span>Scroll</span>
