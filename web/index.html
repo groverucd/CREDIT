@@ -40,6 +40,40 @@
     </div>
   </header>
 
+  <!-- ================== DIAL (Screen 3) ================== -->
+  <section class="section dial-section" id="dial">
+    <div class="wrap dial-wrap">
+      <h2 class="dial-title">Your Credit Score Range</h2>
+      <p class="dial-sub">Scroll to see how scores improve 📈</p>
+
+      <div class="dial-container">
+        <svg viewBox="0 0 200 200">
+          <!-- Background arc -->
+          <path
+            d="M 30 150 A 80 80 0 1 1 170 150"
+            stroke="#233049"
+            stroke-width="20"
+            fill="none"
+            stroke-linecap="round"
+          />
+          <!-- Foreground animated arc -->
+          <path
+            id="progress-arc"
+            d="M 30 150 A 80 80 0 1 1 170 150"
+            stroke="red"
+            stroke-width="20"
+            fill="none"
+            stroke-linecap="round"
+            stroke-dasharray="377"
+            stroke-dashoffset="377"
+          />
+        </svg>
+        <div class="score-text" id="score-text">300</div>
+      </div>
+    </div>
+  </section>
+
+
   <!-- ================== ABOUT THE MODEL (Screen 2) ================== -->
   <section class="section explain" id="about">
     <div class="wrap explain-grid">
