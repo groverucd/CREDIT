@@ -5,40 +5,40 @@
   <title>Credit Scoring — Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://use.typekit.net/nyc6jda.css">
-  <link rel="stylesheet" href="style.css?v=5">
-  </head>
+  <link rel="stylesheet" href="style.css?v=6">
+</head>
 <body>
-  <!-- ================== 3D Background ================== -->
+  <!-- Background stars -->
   <canvas id="bg3d" aria-hidden="true"></canvas>
 
-  <!-- ================== HERO (Screen 1) ================== -->
+  <!-- ============ HERO ============ -->
   <header class="hero section" id="hero">
+    <!-- Hide nav; turn back on by removing the style rule in CSS -->
     <nav class="nav">
-      <div class="brand">
-        <span class="dot"></span>
-        <span>Credit Scoring</span>
-      </div>
+      <div class="brand"><span class="dot"></span><span>Credit Scoring</span></div>
       <a class="nav-btn" href="#about">Learn More</a>
     </nav>
 
-  <h1 class="text">See how lenders evaluate your application</h1>
-	  <h6 aria-hidden="true" class="text outline-text">Enter your details and get instant, clear results on approval status and default risk</h6>
-	  <h1 aria-hidden="true" class="text filter-text">Powered by modern machine learning techniques.</h1>
+    <!-- Big stacked headline (fades out as you leave hero) -->
+    <h1 class="hero-text outline">See how lenders evaluate your application</h1>
+    <h1 class="hero-text fill">See how lenders evaluate your application</h1>
 
-<div id="wrapper">
-	<section id="content">
-		<section class="images">
-			<img data-speed="0.8" src="https://plus.unsplash.com/premium_photo-1679456904199-b41183ada968?q=80&w=927&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-			<img data-speed="0.9" src="https://plus.unsplash.com/premium_photo-1676837121480-ff39800ebfc7?q=80&w=1035&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-			<img data-speed="1"   src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?q=80&w=1973&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-			<img data-speed="1.1" src="https://images.unsplash.com/photo-1624811532681-e58a7e25f273?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-			<img data-speed="0.9" src="https://images.unsplash.com/photo-1646992914433-de93d0d06c98?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-			<img data-speed="1.2" src="https://plus.unsplash.com/premium_photo-1675370203803-357a68b84bbd?q=80&w=2123&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-			<img data-speed="0.8" src="https://images.unsplash.com/photo-1623118176012-9b0c6fa0712d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-			<img data-speed="1"   src="https://plus.unsplash.com/premium_photo-1676983352679-38e7f54602f9?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bG9hbnxlbnwwfHwwfHx8MA%3D%3D" alt="">
-		</section>
-	</section>
-</div>
+    <!-- Mosaic that parallax-shifts horizontally/vertically on scroll -->
+    <div id="wrapper">
+      <section id="content">
+        <section class="images">
+          <!-- Use direct image hosts (images.unsplash.com) -->
+          <img data-speed="0.8"  src="https://images.unsplash.com/photo-1616077168079-7e09a58b8c0f?q=80&w=1200&auto=format&fit=crop" alt="">
+          <img data-speed="0.9"  src="https://images.unsplash.com/photo-1614030595240-8b76d0a0d6ac?q=80&w=1200&auto=format&fit=crop" alt="">
+          <img data-speed="1.0"  src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?q=80&w=1200&auto=format&fit=crop" alt="">
+          <img data-speed="1.1"  src="https://images.unsplash.com/photo-1624811532681-e58a7e25f273?q=80&w=1200&auto=format&fit=crop" alt="">
+          <img data-speed="0.9"  src="https://images.unsplash.com/photo-1646992914433-de93d0d06c98?q=80&w=1200&auto=format&fit=crop" alt="">
+          <img data-speed="1.2"  src="https://images.unsplash.com/photo-1676066550798-cc1a1e6b908d?q=80&w=1200&auto=format&fit=crop" alt="">
+          <img data-speed="0.85" src="https://images.unsplash.com/photo-1623118176012-9b0c6fa0712d?q=80&w=1200&auto=format&fit=crop" alt="">
+          <img data-speed="1.0"  src="https://images.unsplash.com/photo-1621891330068-6ddc5d21d46c?q=80&w=1200&auto=format&fit=crop" alt="">
+        </section>
+      </section>
+    </div>
 
     <div class="hero-scroll">
       <span>Scroll</span>
@@ -46,59 +46,48 @@
     </div>
   </header>
 
-  <!-- ================== DIAL (Screen 3) ================== -->
+  <!-- ============ SCROLL-DRIVEN CREDIT DIAL (pinned) ============ -->
   <section class="section dial-section" id="dial">
     <div class="wrap dial-wrap">
       <h2 class="dial-title">Your Credit Score Range</h2>
-      <p class="dial-sub">Scroll to see how scores improve 📈</p>
+      <p class="dial-sub">Scroll to increase/decrease the dial 📈</p>
 
       <div class="dial-container">
-        <svg viewBox="0 0 200 200">
+        <svg viewBox="0 0 200 200" aria-label="Credit score dial">
           <!-- Background arc -->
-          <path
-            d="M 30 150 A 80 80 0 1 1 170 150"
-            stroke="#233049"
-            stroke-width="20"
-            fill="none"
-            stroke-linecap="round"
-          />
+          <path d="M 30 150 A 80 80 0 1 1 170 150"
+                stroke="#233049" stroke-width="20" fill="none"
+                stroke-linecap="round" />
           <!-- Foreground animated arc -->
-          <path
-            id="progress-arc"
-            d="M 30 150 A 80 80 0 1 1 170 150"
-            stroke="red"
-            stroke-width="20"
-            fill="none"
-            stroke-linecap="round"
-            stroke-dasharray="377"
-            stroke-dashoffset="377"
-          />
+          <path id="progress-arc"
+                d="M 30 150 A 80 80 0 1 1 170 150"
+                stroke="red" stroke-width="20" fill="none"
+                stroke-linecap="round"
+                stroke-dasharray="377" stroke-dashoffset="377" />
         </svg>
         <div class="score-text" id="score-text">300</div>
       </div>
     </div>
   </section>
 
-
-  <!-- ================== ABOUT THE MODEL (Screen 2) ================== -->
+  <!-- ============ ABOUT ============ -->
   <section class="section explain" id="about">
     <div class="wrap explain-grid">
       <div class="explain-copy">
         <h2>What the model does</h2>
         <p>
-          Our model estimates a borrower’s <strong>probability of default (PD)</strong> using
-          a blend of behavioral and credit history features. The decision boundaries are simple:
-          if PD ≤ <code>THRESH_APPROVE</code> → <strong>APPROVE</strong>; between thresholds →
-          <strong>CONDITIONAL</strong>; if PD ≥ <code>THRESH_REJECT</code> → <strong>REJECT</strong>.
+          Our model estimates a borrower’s <strong>probability of default (PD)</strong> from credit history & behavior.
+          Decision bands are simple: PD ≤ <code>THRESH_APPROVE</code> → <strong>APPROVE</strong>, between thresholds →
+          <strong>CONDITIONAL</strong>, PD ≥ <code>THRESH_REJECT</code> → <strong>REJECT</strong>.
         </p>
         <ul class="bullets">
-          <li>Sensitive to debt-to-income and utilization</li>
-          <li>Considers inquiries, delinquencies, and public records</li>
-          <li>Transparent decision thresholds</li>
+          <li>Sensitive to debt-to-income & utilization</li>
+          <li>Considers inquiries, delinquencies & public records</li>
+          <li>Transparent, auditable thresholds</li>
         </ul>
       </div>
 
-      <!-- Animated bars (SVG) -->
+      <!-- Animated bars -->
       <div class="viz-card">
         <svg viewBox="0 0 320 200" class="viz-bars" role="img" aria-label="Feature importances">
           <defs>
@@ -107,7 +96,6 @@
               <stop offset="100%" stop-color="#34d399"/>
             </linearGradient>
           </defs>
-          <!-- bars (animated width via JS/GSAP) -->
           <g transform="translate(30,30)">
             <text x="0" y="-8" class="viz-title">Feature Signals</text>
             <g class="bar" data-w="220"><rect x="0" y="0"   width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">revol_util</text></g>
@@ -121,39 +109,23 @@
     </div>
   </section>
 
-  <!-- ================== TRAINING (Screen 3) ================== -->
+  <!-- ============ TRAINING ============ -->
   <section class="section training" id="training">
     <div class="wrap training-grid">
       <div class="training-copy">
         <h2>How we trained it</h2>
-        <p>
-          We generated a realistic dataset with balanced purposes (car, credit card, debt consolidation, etc.),
-          engineered features (like DTI and sub-grade), and trained a tree ensemble to predict default.
-        </p>
-        <p>
-          We then calibrated thresholds to map PD → <strong>Approve/Conditional/Reject</strong>. The result is a fast,
-          explainable decision system suitable for demos.
-        </p>
+        <p>Realistic synthetic data, engineered features (DTI, sub-grade), and a tree ensemble.</p>
+        <p>Thresholds calibrated to map PD → Approve / Conditional / Reject.</p>
       </div>
-
       <div class="slides">
-        <div class="slide one">
-          <h3>1 — Feature Engineering</h3>
-          <p>Derived ratios (DTI), binary flags, and ordinal encodings.</p>
-        </div>
-        <div class="slide two">
-          <h3>2 — Model Training</h3>
-          <p>Random Forest with class balancing and hold-out validation.</p>
-        </div>
-        <div class="slide three">
-          <h3>3 — Threshold Tuning</h3>
-          <p>Simple, auditable bands for consistent decisions.</p>
-        </div>
+        <div class="slide one"><h3>1 — Feature Engineering</h3><p>Ratios, binaries, ordinals.</p></div>
+        <div class="slide two"><h3>2 — Model Training</h3><p>Random Forest + class balance.</p></div>
+        <div class="slide three"><h3>3 — Threshold Tuning</h3><p>Simple, auditable bands.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- ================== CTA (Screen 4) ================== -->
+  <!-- ============ CTA ============ -->
   <section class="section cta" id="cta">
     <div class="wrap cta-inner">
       <h2>Ready to see it in action?</h2>
@@ -162,11 +134,10 @@
     </div>
   </section>
 
-  <!-- ================== DEMO (Screen 5) ================== -->
+  <!-- ============ DEMO WIZARD ============ -->
   <main class="wrap demo" id="demo">
     <h2 class="demo-title">Your Application</h2>
 
-    <!-- Progress -->
     <div class="steps-progress">
       <div class="dot active" data-step-dot="1"></div>
       <div class="dot" data-step-dot="2"></div>
@@ -175,26 +146,15 @@
     </div>
 
     <section class="panels wizard">
+      <!-- Steps 1..4 exactly as before -->
       <!-- STEP 1 -->
       <div class="panel step active" data-step="1">
         <h3 class="panel-title">Basics</h3>
         <div class="grid">
-          <div class="field">
-            <label>Monthly Income</label>
-            <input id="monthly_income" type="number" min="0" value="5000">
-          </div>
-          <div class="field">
-            <label>Current Monthly Debt (ex-housing)</label>
-            <input id="monthly_debt" type="number" min="0" value="500">
-          </div>
-          <div class="field" id="loan-amount-field">
-            <label>Desired Loan Amount</label>
-            <input id="loan_amount" type="number" min="0" value="10000">
-          </div>
-          <div class="field">
-            <label>Assumed Term (months)</label>
-            <select id="term"><option>36</option><option>60</option></select>
-          </div>
+          <div class="field"><label>Monthly Income</label><input id="monthly_income" type="number" min="0" value="5000"></div>
+          <div class="field"><label>Current Monthly Debt (ex-housing)</label><input id="monthly_debt" type="number" min="0" value="500"></div>
+          <div class="field" id="loan-amount-field"><label>Desired Loan Amount</label><input id="loan_amount" type="number" min="0" value="10000"></div>
+          <div class="field"><label>Assumed Term (months)</label><select id="term"><option>36</option><option>60</option></select></div>
           <div class="field">
             <label>Purpose of Loan</label>
             <select id="purpose">
@@ -208,9 +168,7 @@
             </select>
           </div>
         </div>
-        <div class="form-actions">
-          <button class="btn-primary next">Next</button>
-        </div>
+        <div class="form-actions"><button class="btn-primary next">Next</button></div>
       </div>
 
       <!-- STEP 2 -->
@@ -227,23 +185,9 @@
               <option value="10">10+ years</option>
             </select>
           </div>
-          <div class="field">
-            <label>Short Employment (&lt; 1 year)?</label>
-            <select id="short_emp"><option value="0" selected>No</option><option value="1">Yes</option></select>
-          </div>
-          <div class="field">
-            <label>Home Ownership</label>
-            <select id="home_ownership">
-              <option>RENT</option><option selected>MORTGAGE</option><option>OWN</option><option>OTHER</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Grade</label>
-            <select id="grade">
-              <option>A</option><option selected>B</option><option>C</option><option>D</option>
-              <option>E</option><option>F</option><option>G</option>
-            </select>
-          </div>
+          <div class="field"><label>Short Employment (&lt; 1 year)?</label><select id="short_emp"><option value="0" selected>No</option><option value="1">Yes</option></select></div>
+          <div class="field"><label>Home Ownership</label><select id="home_ownership"><option>RENT</option><option selected>MORTGAGE</option><option>OWN</option><option>OTHER</option></select></div>
+          <div class="field"><label>Grade</label><select id="grade"><option>A</option><option selected>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
           <div class="field">
             <label>Sub-Grade</label>
             <select id="subgrade">
@@ -257,65 +201,35 @@
             </select>
           </div>
         </div>
-        <div class="form-actions">
-          <button class="btn-ghost prev">Back</button>
-          <button class="btn-primary next">Next</button>
-        </div>
+        <div class="form-actions"><button class="btn-ghost prev">Back</button><button class="btn-primary next">Next</button></div>
       </div>
 
       <!-- STEP 3 -->
       <div class="panel step" data-step="3">
         <h3 class="panel-title">Credit Activity</h3>
         <div class="grid">
-          <div class="field">
-            <label>Delinquencies (60+ days) in last 2 yrs</label>
-            <input id="delinq_2yrs" type="number" min="0" value="0">
-          </div>
-          <div class="field">
-            <label>Hard Inquiries (last 6 months)</label>
-            <input id="inq6" type="number" min="0" value="1">
-          </div>
-          <div class="field">
-            <label>Open Credit Accounts</label>
-            <input id="open_acc" type="number" min="0" value="5">
-          </div>
-          <div class="field">
-            <label>Credit Utilization %</label>
-            <input id="revol_util" type="number" min="0" max="100" value="30">
-          </div>
+          <div class="field"><label>Delinquencies (60+ days) in last 2 yrs</label><input id="delinq_2yrs" type="number" min="0" value="0"></div>
+          <div class="field"><label>Hard Inquiries (last 6 months)</label><input id="inq6" type="number" min="0" value="1"></div>
+          <div class="field"><label>Open Credit Accounts</label><input id="open_acc" type="number" min="0" value="5"></div>
+          <div class="field"><label>Credit Utilization %</label><input id="revol_util" type="number" min="0" max="100" value="30"></div>
         </div>
-        <div class="form-actions">
-          <button class="btn-ghost prev">Back</button>
-          <button class="btn-primary next">Next</button>
-        </div>
+        <div class="form-actions"><button class="btn-ghost prev">Back</button><button class="btn-primary next">Next</button></div>
       </div>
 
       <!-- STEP 4 -->
       <div class="panel step" data-step="4">
         <h3 class="panel-title">Records & Submit</h3>
         <div class="grid">
-          <div class="field">
-            <label>Public Records (liens, judgments)</label>
-            <input id="pub_rec" type="number" min="0" value="0">
-          </div>
-          <div class="field">
-            <label>Any delinquency ever reported?</label>
-            <select id="any_delinq"><option value="0" selected>No</option><option value="1">Yes</option></select>
-          </div>
-          <div class="field">
-            <label>Any major derogatory (BK/charge-off)?</label>
-            <select id="any_derog"><option value="0" selected>No</option><option value="1">Yes</option></select>
-          </div>
+          <div class="field"><label>Public Records (liens, judgments)</label><input id="pub_rec" type="number" min="0" value="0"></div>
+          <div class="field"><label>Any delinquency ever reported?</label><select id="any_delinq"><option value="0" selected>No</option><option value="1">Yes</option></select></div>
+          <div class="field"><label>Any major derogatory (BK/charge-off)?</label><select id="any_derog"><option value="0" selected>No</option><option value="1">Yes</option></select></div>
         </div>
         <div class="form-actions">
           <button class="btn-ghost prev">Back</button>
-          <button id="go" class="btn-primary">
-            <span class="btn-ico">⚡</span> Score Application
-          </button>
+          <button id="go" class="btn-primary"><span class="btn-ico">⚡</span> Score Application</button>
           <button id="reset" class="btn-ghost">Reset</button>
         </div>
 
-        <!-- Loading/status & Result -->
         <div class="panel result-panel">
           <p id="status" class="muted"></p>
           <div id="result" hidden>
@@ -327,7 +241,9 @@
               </div>
             </div>
             <div class="note">
-              Thresholds (server): <code>&lt;= THRESH_APPROVE → APPROVE, between → CONDITIONAL, &gt;= THRESH_REJECT → REJECT</code>
+              Thresholds: <code>&lt;= THRESH_APPROVE → APPROVE</code> •
+              <code>between → CONDITIONAL</code> •
+              <code>&gt;= THRESH_REJECT → REJECT</code>
             </div>
           </div>
         </div>
@@ -344,8 +260,6 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
-  <!-- App -->
-  <script src="app.js?v=5" defer></script>
+  <script src="app.js?v=6" defer></script>
 </body>
 </html>
