@@ -113,7 +113,7 @@ Init ScrollSmoother
 ------------------------------*/
 const scrollerSmoother = ScrollSmoother.create({
   content: content,
-  wrapper: '#wrapper',
+  wrapper: '#scrollwrapper',
   smooth: 1,
   effects: false
 });
