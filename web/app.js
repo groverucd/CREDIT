@@ -94,39 +94,34 @@
       });
     }
 
-    // Techy overlay circles
-    const container = document.querySelector('#content');
-    if (window.SimplexNoise && container) {
-      const simplex = new SimplexNoise();
-      const COUNT = 1800; // perf-friendly
-      const frag = document.createDocumentFragment();
-      for (let i = 0; i < COUNT; i++) {
-        const div = document.createElement('div');
-        div.classList.add('circle');
-        const n1 = simplex.noise2D(i * 0.003, i * 0.0033);
-        const n2 = simplex.noise2D(i * 0.002, i * 0.001);
-        div.style.transform = `translate(${n2 * 200}px, ${n1 * 120}px) rotate(${n2 * 270}deg) scale(${3 + n1 * 2}, ${3 + n2 * 2})`;
-        div.style.boxShadow = `0 0 0 .2px hsla(${Math.floor(i * 0.3)}, 70%, 70%, .6)`;
-        frag.appendChild(div);
-      }
-      container.appendChild(frag);
+   // ===== Techy SCROLL overlay: noise circles + timeline =====
+gsap.registerPlugin(ScrollTrigger);
 
-      const circles = document.querySelectorAll('.circle');
-      const tl = gsap.timeline({
-        scrollTrigger: { scrub: .7, start: "top 25%", end: "bottom bottom" }
-      });
-      circles.forEach((c) => tl.to(c, { opacity: 1 }, 0));
-    }
+// use the renamed outer container if present
+const techContent = document.querySelector('#smooth-content') || document.body;
 
-    // Bars animation when entering About
-    gsap.utils.toArray(".viz-bars .bar").forEach((g) => {
-      const rect = g.querySelector("rect");
-      const w = parseFloat(g.getAttribute("data-w") || "160");
-      gsap.fromTo(rect, { width: 0 }, {
-        width: w, duration: 1, ease: "power2.out",
-        scrollTrigger: { trigger: ".viz-bars", start: "top 80%" }
-      });
-    });
+/* circles */
+const simplex = new SimplexNoise();
+for (let i = 0; i < 1800; i++) {              // keep this ~2k; 5k is heavy
+  const div = document.createElement('div');
+  div.classList.add('circle');
+  const n1 = simplex.noise2D(i * 0.003, i * 0.0033);
+  const n2 = simplex.noise2D(i * 0.002, i * 0.001);
+  Object.assign(div.style, {
+    transform: `translate(${n2 * 200}px) rotate(${n2 * 270}deg) scale(${3 + n1 * 2}, ${3 + n2 * 2})`,
+    boxShadow: `0 0 0 .2px hsla(${Math.floor(i * 0.3)}, 70%, 70%, .6)`
+  });
+  techContent.appendChild(div);
+}
+const Circles = document.querySelectorAll('.circle');
+const main = gsap.timeline({
+  scrollTrigger: {
+    scrub: 0.7,
+    start: "top 25%",
+    end: "bottom bottom"
+  }
+});
+Circles.forEach((circle) => main.to(circle, { opacity: 1 }, 0));
 
     // Training cards pop
     gsap.from(".slide", {
