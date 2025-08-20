@@ -4,7 +4,7 @@
     ? window.location.origin
     : "https://credit-6wok.onrender.com";
 
-  const $ = (id) => document.getElementById(id);
+  const $ = (id) => document.getElementById(id); 
   const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
   const pct = (a, b) => (b > 0 ? (a / b) * 100 : 0);
   const subGradeNum = (sg) => {
