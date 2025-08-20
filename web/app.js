@@ -95,7 +95,9 @@
   if (!root || !grid || !scrollUI) return;
 
   // --- create a handful of circles
-  const simplex = new SimplexNoise();
+  const simplex = (window.SimplexNoise)
+  ? new window.SimplexNoise()
+  : { noise2D: () => 0 }; // fallback: no movement, no errors
   const circles = [];
   const COUNT = 6;
   for (let i=0; i<COUNT; i++){
