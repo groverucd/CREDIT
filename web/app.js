@@ -8,7 +8,7 @@
   const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
   const pct = (a, b) => (b > 0 ? (a / b) * 100 : 0);
   const subGradeNum = (sg) => {
-    const m = /^([A-G])([1-5])$/.exec(String(sg).toUpperCase().trim());
+    const m = /^([A-G])([1-5])$/.exec(String(sg).toUpperCase().trim()); 
     if (!m) return 10;
     return (m[1].charCodeAt(0) - 65) * 5 + parseInt(m[2], 10) + 1; // 1..35
   };
