@@ -23,8 +23,7 @@ body{
 .hero{position:relative; overflow:clip}
 .hero-text{
   position:fixed;
-  top:50vh;
-  left:50%;
+  top:50vh; left:50%;
   transform:translate(-50%,-60%);
   width:min(1200px,92vw);
   text-align:center;
@@ -35,21 +34,8 @@ body{
   pointer-events:none;
   z-index:2;
 }
-.hero-text.outline{
-  color:transparent;
-  -webkit-text-stroke:2px #ffffffcc;
-}
-.hero-text.fill{
-  color:#b494ff;
-  mix-blend-mode:screen;
-  text-shadow:0 8px 30px rgba(138,180,255,.25);
-}
-.hero-scroll{position:absolute; left:0; right:0; bottom:20px; display:grid; place-items:center; gap:8px; color:var(--muted)}
-.hero-scroll .mouse{width:22px; height:36px; border:2px solid var(--panel-border); border-radius:12px; position:relative}
-.hero-scroll .mouse::after{content:""; position:absolute; top:6px; left:50%; transform:translateX(-50%); width:4px; height:6px; background:var(--muted); border-radius:2px; animation:wheel 1.6s infinite}
-@keyframes wheel{0%{opacity:1; transform:translate(-50%,0)} 100%{opacity:0; transform:translate(-50%,10px)}}
-
-/* Mosaic grid */
+.hero-text.outline{color:transparent; -webkit-text-stroke:2px #ffffffcc;}
+.hero-text.fill{color:#b494ff; mix-blend-mode:screen; text-shadow:0 8px 30px rgba(138,180,255,.25);}
 #wrapper{position:relative; width:100%}
 .images{
   padding-top:60vh;
@@ -60,8 +46,7 @@ body{
   display:grid;
   grid-template-columns:repeat(20, 2fr);
   grid-template-rows:repeat(30, 28px);
-  justify-items:center;
-  align-items:center;
+  justify-items:center; align-items:center;
   z-index:1;
 }
 .images img{width:100%; height:100%; object-fit:cover; border-radius:14px; filter:brightness(.9) saturate(1.05)}
@@ -75,74 +60,31 @@ body{
 .images img:nth-child(8){grid-area:26/5/  30/15;}
 
 /* ============ Techy SCROLL overlay ============ */
-body {
-  &:before, &:after {
-    content: "";
-    position: fixed;
-    z-index: 10;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background:radial-gradient(1200px 800px at 70% -10%, rgba(138,180,255,.08), transparent 60%), var(--bg);
-    color:var(--text);
-    font:16px/1.45 "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    
-
-  }
-  &:after {
-    top: auto;
-    bottom: 0;
-    background: linear-gradient(to top, #fff 50%, rgba(255, 255, 255, 0));
-  }
+body::before, body::after{
+  content:""; position:fixed; z-index:4; left:0; width:100%; height:60px; pointer-events:none;
 }
-
-.scroll {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  z-index: 1;
-  font-family: Roboto, sans-serif;
-  letter-spacing: 0.2em;
-  font-size: 11px;
-
-  span {
-    display: block;
-  }
-
-  svg {
-    margin-top: 10px;
-    width: 18px;
-    height: 18px;
-    animation: scroll 0.95s ease-in-out alternate infinite;
-    fill: none;
-    stroke: #000000;
-    stroke-linecap: round;
-    stroke-miterlimit: 10;
-    stroke-width: 1;
-  }
+body::before{
+  top:0;
+  background:radial-gradient(1200px 800px at 70% -10%, rgba(138,180,255,.08), transparent 60%), var(--bg);
 }
-
-.circle {
-  width: 20px;
-  height: 20px;
-  border-radius: 40%;
-  opacity: 0;
-  margin: -19px auto;
-  transition: transform 1s cubic-bezier(0.14, 0.15, 0.13, 0.99);
+body::after{
+  bottom:0; background:linear-gradient(to top, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0));
 }
-
-@keyframes scroll {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(10px);
-  }
+.scroll{
+  width:100%; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:fixed; inset:0 auto auto 0; z-index:5; pointer-events:none; color:#cbd5e1; letter-spacing:.2em; font-size:11px;
+}
+.scroll span{display:block}
+.scroll svg{
+  margin-top:10px; width:18px; height:18px;
+  animation:scrollBounce .95s ease-in-out alternate infinite;
+  fill:none; stroke:#cbd5e1; stroke-linecap:round; stroke-miterlimit:10; stroke-width:1;
+}
+@keyframes scrollBounce{0%{transform:translateY(0)}100%{transform:translateY(10px)}}
+.circle{
+  width:20px; height:20px; border-radius:40%; opacity:0; margin:-19px auto;
+  transition:transform 1s cubic-bezier(0.14, 0.15, 0.13, 0.99);
+  will-change:transform, opacity;
 }
 
 /* ---------- DIAL ---------- */
@@ -157,8 +99,7 @@ body {
   font-size:2.8rem; font-weight:900; color:var(--text);
   text-shadow:0 0 24px rgba(16,185,129,.25);
 }
-
-/* tick styling */
+/* ticks */
 .tick-line{stroke:#2c3957; stroke-width:2}
 .tick-line.major{stroke:#4f5f85; stroke-width:2.5}
 .tick-label{fill:#9fb0d6; font-size:11px; font-weight:700; text-anchor:middle}
