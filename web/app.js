@@ -4,7 +4,7 @@
     ? window.location.origin
     : "https://credit-6wok.onrender.com";
 
-  const $ = (id) => document.getElementById(id); 
+  const $ = (id) => document.getElementById(id);
   const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
   const pct = (a, b) => (b > 0 ? (a / b) * 100 : 0);
   const subGradeNum = (sg) => {
@@ -58,10 +58,18 @@
     loop();
   })();
 
-  // ------------- GSAP + ScrollTrigger -------------
+  // ------------- GSAP + ScrollTrigger + ScrollSmoother -------------
   (function gsapAnims() {
     if (!window.gsap) return;
-    gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+
+    // Smooth scroll for whole page
+    const scrollerSmoother = ScrollSmoother.create({
+      wrapper: '#scrollwrapper',
+      content: '#content',
+      smooth: 1,
+      effects: false
+    });
 
     // Fade the huge hero headline out as you scroll past the hero
     gsap.to(".hero-text", {
@@ -85,54 +93,31 @@
         });
       });
     }
-    // ============ SCROLL overlay: tech circles + timeline ============
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother)
-const content = document.querySelector('#content')
 
-/*------------------------------
-Making some circles noise
-------------------------------*/
-const simplex = new SimplexNoise()
-for (let i = 0; i < 5000; i++) {
-  const div = document.createElement('div')
-  div.classList.add('circle')
-  const n1 = simplex.noise2D(i * 0.003, i * 0.0033)
-  const n2 = simplex.noise2D(i * 0.002, i * 0.001)
-  
-  const style = {
-    transform: `translate(${n2 * 200}px) rotate(${n2 * 270}deg) scale(${3 + n1 * 2}, ${3 + n2 * 2})`,
-    boxShadow: `0 0 0 .2px hsla(${Math.floor(i*0.3)}, 70%, 70%, .6)`
-  }
-  Object.assign(div.style, style)
-  content.appendChild(div)
-}
-const Circles = document.querySelectorAll('.circle')
+    // Techy overlay circles
+    const container = document.querySelector('#content');
+    if (window.SimplexNoise && container) {
+      const simplex = new SimplexNoise();
+      const COUNT = 1800; // perf-friendly
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < COUNT; i++) {
+        const div = document.createElement('div');
+        div.classList.add('circle');
+        const n1 = simplex.noise2D(i * 0.003, i * 0.0033);
+        const n2 = simplex.noise2D(i * 0.002, i * 0.001);
+        div.style.transform = `translate(${n2 * 200}px, ${n1 * 120}px) rotate(${n2 * 270}deg) scale(${3 + n1 * 2}, ${3 + n2 * 2})`;
+        div.style.boxShadow = `0 0 0 .2px hsla(${Math.floor(i * 0.3)}, 70%, 70%, .6)`;
+        frag.appendChild(div);
+      }
+      container.appendChild(frag);
 
-/*------------------------------
-Init ScrollSmoother
-------------------------------*/
-const scrollerSmoother = ScrollSmoother.create({
-  content: content,
-  wrapper: '#scrollwrapper',
-  smooth: 1,
-  effects: false
-});
+      const circles = document.querySelectorAll('.circle');
+      const tl = gsap.timeline({
+        scrollTrigger: { scrub: .7, start: "top 25%", end: "bottom bottom" }
+      });
+      circles.forEach((c) => tl.to(c, { opacity: 1 }, 0));
+    }
 
-/*------------------------------
-Scroll Trigger
-------------------------------*/
-const main = gsap.timeline({
-  scrollTrigger: {
-    scrub: .7,
-    start: "top 25%",
-    end: "bottom bottom"
-  }
-})
-Circles.forEach((circle) => {
-  main.to(circle, {
-    opacity: 1,
-  })
-})
     // Bars animation when entering About
     gsap.utils.toArray(".viz-bars .bar").forEach((g) => {
       const rect = g.querySelector("rect");
@@ -165,39 +150,42 @@ Circles.forEach((circle) => {
   (function dial() {
     if (!window.gsap) return;
     const section = document.querySelector("#dial");
-    const svg = document.querySelector(".dial-svg");
     const bgArc = document.querySelector("#bg-arc");
     const arc = document.querySelector("#progress-arc");
     const pointer = document.querySelector("#pointer");
     const ticksGroup = document.querySelector("#ticks");
     const scoreEl = $("score-text");
-    if (!section || !svg || !bgArc || !arc || !pointer || !ticksGroup || !scoreEl) return;
+    if (!section || !bgArc || !arc || !pointer || !ticksGroup || !scoreEl) return;
 
-    // Prepare arc dash
     const ARC_LEN = bgArc.getTotalLength();
     arc.style.strokeDasharray = `${ARC_LEN}`;
     arc.style.strokeDashoffset = `${ARC_LEN}`;
 
-    // Build ticks (every 25, major every 100 from 300..850)
+    // Build ticks (every 25, major every 100 from 300..850) with radial normals
     const fromScore = 300, toScore = 850;
     const range = toScore - fromScore; // 550
     const scoreToLen = (score) => ((score - fromScore) / range) * ARC_LEN;
     const mkTick = (score, major=false) => {
       const l = scoreToLen(score);
       const p = bgArc.getPointAtLength(l);
-      // tangent for small offset to draw inward; for this semi-circle, a fixed vertical is fine
-      const y1 = p.y, y2 = p.y - (major ? 14 : 9);
-      const x = p.x;
+      const p2 = bgArc.getPointAtLength(Math.min(l + 0.1, ARC_LEN));
+      const dx = p2.x - p.x, dy = p2.y - p.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len, ny = dx / len; // normal
+      const lenTick = major ? 14 : 9;
+
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      line.setAttribute("x1", x); line.setAttribute("y1", y1);
-      line.setAttribute("x2", x); line.setAttribute("y2", y2);
+      line.setAttribute("x1", p.x);
+      line.setAttribute("y1", p.y);
+      line.setAttribute("x2", p.x + nx * lenTick);
+      line.setAttribute("y2", p.y + ny * lenTick);
       line.setAttribute("class", "tick-line" + (major ? " major" : ""));
       ticksGroup.appendChild(line);
 
       if (major) {
         const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        label.setAttribute("x", x);
-        label.setAttribute("y", y2 - 6);
+        label.setAttribute("x", p.x + nx * (lenTick + 10));
+        label.setAttribute("y", p.y + ny * (lenTick + 10));
         label.setAttribute("class", "tick-label");
         label.textContent = score.toString();
         ticksGroup.appendChild(label);
@@ -207,17 +195,14 @@ Circles.forEach((circle) => {
       mkTick(s, s % 100 === 0 || s === fromScore || s === toScore);
     }
 
-    // Helpers
     const lerp = (a, b, t) => a + (b - a) * t;
     const scoreFrom = (p) => Math.round(lerp(fromScore, toScore, p));
     const colorFor = (score) => {
-      // red (0deg) -> yellow (50%) -> green (120deg). Map 300..850 to 0..1
       const t = (score - fromScore) / range;
-      const hue = lerp(0, 120, t); // HSL hue
+      const hue = lerp(0, 120, t); // red->green
       return `hsl(${hue} 80% 56%)`;
     };
 
-    // ScrollTrigger: pin & scrub
     ScrollTrigger.create({
       trigger: section,
       start: "top top",
@@ -234,7 +219,6 @@ Circles.forEach((circle) => {
         arc.style.stroke = color;
         scoreEl.textContent = String(score);
 
-        // Move pointer to arc point
         const pt = bgArc.getPointAtLength(ARC_LEN * p);
         pointer.setAttribute("cx", pt.x);
         pointer.setAttribute("cy", pt.y);
