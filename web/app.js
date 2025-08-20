@@ -85,7 +85,93 @@
         });
       });
     }
+    // ============ SCROLL overlay: tech circles + timeline ============
+(function techyScroll(){
+  if (!window.gsap || !window.ScrollTrigger) return;
 
+  const root     = document.querySelector('#content');   // where we add the circles
+  const grid     = document.querySelector('.images');    // scroll region to sync with
+  const scrollUI = document.querySelector('.scroll');
+  if (!root || !grid || !scrollUI) return;
+
+  // --- create a handful of circles
+  const simplex = new SimplexNoise();
+  const circles = [];
+  const COUNT = 6;
+  for (let i=0; i<COUNT; i++){
+    const d = document.createElement('div');
+    d.className = 'circle';
+    // slight hue/size variety
+    const size = 160 + Math.random()*140;
+    d.style.width = d.style.height = size + 'px';
+    d.style.background = `radial-gradient(closest-side,
+      hsla(${200+Math.random()*40}, 100%, 70%, .35),
+      rgba(0,0,0,0) 70%)`;
+    root.appendChild(d);
+    circles.push({ el: d, size, seedX: Math.random()*1000, seedY: Math.random()*1000 });
+  }
+
+  // --- position & animate on every frame (while in view)
+  const bounds = grid.getBoundingClientRect();
+  const centerX = () => grid.getBoundingClientRect().left + grid.offsetWidth/2;
+  const centerY = () => grid.getBoundingClientRect().top  + scrollY + grid.offsetHeight/2;
+
+  let raf;
+  function tick(){
+    const t = performance.now() * 0.0006;
+    circles.forEach((c, i) => {
+      // noise-based offsets
+      const nx = simplex.noise2D(t + c.seedX, i*0.3) * 160;
+      const ny = simplex.noise2D(i*0.3, t + c.seedY) * 90;
+
+      // spread them horizontally across the grid width
+      const spread = (i / (COUNT-1)) * grid.offsetWidth - grid.offsetWidth/2;
+
+      const x = centerX() + spread + nx;
+      const y = centerY() + ny;
+
+      // translate via transforms for performance
+      c.el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y - scrollY)}px) translate(-50%,-50%)`;
+    });
+    raf = requestAnimationFrame(tick);
+  }
+
+  // start/stop the RAF only when the grid is in view
+  ScrollTrigger.create({
+    trigger: grid,
+    start: 'top bottom',
+    end:   'bottom top',
+    onEnter:  () => { if (!raf) raf = requestAnimationFrame(tick); },
+    onLeave:  () => { cancelAnimationFrame(raf); raf = null; },
+    onEnterBack: () => { if (!raf) raf = requestAnimationFrame(tick); },
+    onLeaveBack: () => { cancelAnimationFrame(raf); raf = null; }
+  });
+
+  // --- timeline to fade in circles and the “SCROLL” label while passing the hero
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: grid,
+      start: 'top 80%',      // when images reach 80% viewport
+      end:   'top 40%',      // until they reach 40%
+      scrub: 0.7
+    }
+  });
+
+  tl.to('.circle', { opacity: 1, duration: 0.6, stagger: 0.06, ease: 'power2.out' }, 0)
+    .fromTo(scrollUI, { y: 12, opacity: 0 }, { y:0, opacity:1, duration:0.8, ease:'power2.out' }, 0);
+
+  // fade the UI away as we leave the hero section
+  gsap.to(scrollUI, {
+    scrollTrigger: { trigger: grid, start: 'top 30%', end: 'bottom top', scrub: true },
+    opacity: 0, y: -10, ease: 'none'
+  });
+
+  // keep circles gently drifting even as the page moves
+  gsap.to('.circle', {
+    scrollTrigger: { trigger: grid, start:'top bottom', end:'bottom top', scrub:true },
+    yPercent: -6, ease: 'none'
+  });
+})();
     // Bars animation when entering About
     gsap.utils.toArray(".viz-bars .bar").forEach((g) => {
       const rect = g.querySelector("rect");
