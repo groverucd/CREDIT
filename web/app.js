@@ -58,18 +58,10 @@
     loop();
   })();
 
-  // ------------- GSAP + ScrollTrigger + ScrollSmoother -------------
+  // ------------- GSAP + ScrollTrigger -------------
   (function gsapAnims() {
     if (!window.gsap) return;
-    gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
-
-    // Smooth scroll for whole page
-    const scrollerSmoother = ScrollSmoother.create({
-      wrapper: '#scrollwrapper',
-      content: '#content',
-      smooth: 1,
-      effects: false
-    });
+    gsap.registerPlugin(ScrollTrigger);
 
     // Fade the huge hero headline out as you scroll past the hero
     gsap.to(".hero-text", {
@@ -94,34 +86,15 @@
       });
     }
 
-   // ===== Techy SCROLL overlay: noise circles + timeline =====
-gsap.registerPlugin(ScrollTrigger);
-
-// use the renamed outer container if present
-const techContent = document.querySelector('#smooth-content') || document.body;
-
-/* circles */
-const simplex = new SimplexNoise();
-for (let i = 0; i < 1800; i++) {              // keep this ~2k; 5k is heavy
-  const div = document.createElement('div');
-  div.classList.add('circle');
-  const n1 = simplex.noise2D(i * 0.003, i * 0.0033);
-  const n2 = simplex.noise2D(i * 0.002, i * 0.001);
-  Object.assign(div.style, {
-    transform: `translate(${n2 * 200}px) rotate(${n2 * 270}deg) scale(${3 + n1 * 2}, ${3 + n2 * 2})`,
-    boxShadow: `0 0 0 .2px hsla(${Math.floor(i * 0.3)}, 70%, 70%, .6)`
-  });
-  techContent.appendChild(div);
-}
-const Circles = document.querySelectorAll('.circle');
-const main = gsap.timeline({
-  scrollTrigger: {
-    scrub: 0.7,
-    start: "top 25%",
-    end: "bottom bottom"
-  }
-});
-Circles.forEach((circle) => main.to(circle, { opacity: 1 }, 0));
+    // Bars animation when entering About
+    gsap.utils.toArray(".viz-bars .bar").forEach((g) => {
+      const rect = g.querySelector("rect");
+      const w = parseFloat(g.getAttribute("data-w") || "160");
+      gsap.fromTo(rect, { width: 0 }, {
+        width: w, duration: 1, ease: "power2.out",
+        scrollTrigger: { trigger: ".viz-bars", start: "top 80%" }
+      });
+    });
 
     // Training cards pop
     gsap.from(".slide", {
@@ -145,42 +118,39 @@ Circles.forEach((circle) => main.to(circle, { opacity: 1 }, 0));
   (function dial() {
     if (!window.gsap) return;
     const section = document.querySelector("#dial");
+    const svg = document.querySelector(".dial-svg");
     const bgArc = document.querySelector("#bg-arc");
     const arc = document.querySelector("#progress-arc");
     const pointer = document.querySelector("#pointer");
     const ticksGroup = document.querySelector("#ticks");
     const scoreEl = $("score-text");
-    if (!section || !bgArc || !arc || !pointer || !ticksGroup || !scoreEl) return;
+    if (!section || !svg || !bgArc || !arc || !pointer || !ticksGroup || !scoreEl) return;
 
+    // Prepare arc dash
     const ARC_LEN = bgArc.getTotalLength();
     arc.style.strokeDasharray = `${ARC_LEN}`;
     arc.style.strokeDashoffset = `${ARC_LEN}`;
 
-    // Build ticks (every 25, major every 100 from 300..850) with radial normals
+    // Build ticks (every 25, major every 100 from 300..850)
     const fromScore = 300, toScore = 850;
     const range = toScore - fromScore; // 550
     const scoreToLen = (score) => ((score - fromScore) / range) * ARC_LEN;
     const mkTick = (score, major=false) => {
       const l = scoreToLen(score);
       const p = bgArc.getPointAtLength(l);
-      const p2 = bgArc.getPointAtLength(Math.min(l + 0.1, ARC_LEN));
-      const dx = p2.x - p.x, dy = p2.y - p.y;
-      const len = Math.hypot(dx, dy) || 1;
-      const nx = -dy / len, ny = dx / len; // normal
-      const lenTick = major ? 14 : 9;
-
+      // tangent for small offset to draw inward; for this semi-circle, a fixed vertical is fine
+      const y1 = p.y, y2 = p.y - (major ? 14 : 9);
+      const x = p.x;
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      line.setAttribute("x1", p.x);
-      line.setAttribute("y1", p.y);
-      line.setAttribute("x2", p.x + nx * lenTick);
-      line.setAttribute("y2", p.y + ny * lenTick);
+      line.setAttribute("x1", x); line.setAttribute("y1", y1);
+      line.setAttribute("x2", x); line.setAttribute("y2", y2);
       line.setAttribute("class", "tick-line" + (major ? " major" : ""));
       ticksGroup.appendChild(line);
 
       if (major) {
         const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        label.setAttribute("x", p.x + nx * (lenTick + 10));
-        label.setAttribute("y", p.y + ny * (lenTick + 10));
+        label.setAttribute("x", x);
+        label.setAttribute("y", y2 - 6);
         label.setAttribute("class", "tick-label");
         label.textContent = score.toString();
         ticksGroup.appendChild(label);
@@ -190,14 +160,17 @@ Circles.forEach((circle) => main.to(circle, { opacity: 1 }, 0));
       mkTick(s, s % 100 === 0 || s === fromScore || s === toScore);
     }
 
+    // Helpers
     const lerp = (a, b, t) => a + (b - a) * t;
     const scoreFrom = (p) => Math.round(lerp(fromScore, toScore, p));
     const colorFor = (score) => {
+      // red (0deg) -> yellow (50%) -> green (120deg). Map 300..850 to 0..1
       const t = (score - fromScore) / range;
-      const hue = lerp(0, 120, t); // red->green
+      const hue = lerp(0, 120, t); // HSL hue
       return `hsl(${hue} 80% 56%)`;
     };
 
+    // ScrollTrigger: pin & scrub
     ScrollTrigger.create({
       trigger: section,
       start: "top top",
@@ -214,6 +187,7 @@ Circles.forEach((circle) => main.to(circle, { opacity: 1 }, 0));
         arc.style.stroke = color;
         scoreEl.textContent = String(score);
 
+        // Move pointer to arc point
         const pt = bgArc.getPointAtLength(ARC_LEN * p);
         pointer.setAttribute("cx", pt.x);
         pointer.setAttribute("cy", pt.y);
