@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  
   <meta charset="utf-8" />
   <title>Credit Scoring — Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,8 +10,51 @@
 </head>
 <body>
   <!-- Background stars -->
+  
   <canvas id="bg3d" aria-hidden="true"></canvas>
+  <div id="light-bg" aria-hidden="true"></div>
+  <!-- Top-right HUD: social icons + theme toggle -->
+<div class="hud">
+  <div class="hud-group">
+    <a
+      class="hud-btn"
+      href="https://www.linkedin.com/in/aadityagrover/"
+      target="_blank" rel="noopener noreferrer"
+      aria-label="LinkedIn"
+      title="LinkedIn"
+    >
+      <!-- LinkedIn SVG -->
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path fill="currentColor"
+          d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V23h-4V8zm7.5 0h3.8v2.1h.05c.53-1 1.82-2.1 3.75-2.1C19.9 8 22 10 22 14.1V23h-4v-7.9c0-1.88-.67-3.17-2.35-3.17-1.28 0-2.04.86-2.38 1.69-.12.29-.15.7-.15 1.1V23h-4V8z"/>
+      </svg>
+    </a>
 
+    <a
+      class="hud-btn"
+      href="https://github.com/groverucd"
+      target="_blank" rel="noopener noreferrer"
+      aria-label="GitHub"
+      title="GitHub"
+    >
+      <!-- GitHub SVG -->
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path fill="currentColor"
+          d="M12 .5a12 12 0 0 0-3.79 23.4c.6.1.82-.26.82-.58v-2.02c-3.34.72-4.04-1.6-4.04-1.6-.55-1.4-1.35-1.77-1.35-1.77-1.1-.76.08-.75.08-.75 1.22.09 1.86 1.26 1.86 1.26 1.08 1.84 2.83 1.31 3.52 1 .11-.79.42-1.31.77-1.61-2.66-.3-5.46-1.33-5.46-5.92 0-1.31.47-2.39 1.24-3.24-.12-.3-.54-1.52.12-3.16 0 0 1.01-.32 3.3 1.23.96-.27 1.99-.4 3.01-.41 1.02 0 2.05.14 3.01.41 2.29-1.55 3.3-1.23 3.3-1.23.66 1.64.24 2.86.12 3.16.77.85 1.24 1.93 1.24 3.24 0 4.6-2.81 5.61-5.49 5.91.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57A12 12 0 0 0 12 .5z"/>
+      </svg>
+    </a>
+
+    <button class="hud-btn theme-toggle" id="themeToggle" aria-label="Toggle dark/light" title="Toggle theme">
+      <!-- Sun/Moon swap via CSS -->
+      <svg class="ico-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path fill="currentColor" d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.8 1.42-1.42zM1 13h3v-2H1v2zm10 10h2v-3h-2v3zm7.04-3.95l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 13h3v-2h-3v2zM11 1v3h2V1h-2zM4.22 18.36l-1.8 1.79 1.41 1.41 1.79-1.8-1.4-1.4zM12 6a6 6 0 100 12A6 6 0 0012 6z"/>
+      </svg>
+      <svg class="ico-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path fill="currentColor" d="M21.64 13a9 9 0 01-11.3-11.3A10 10 0 1021.64 13z"/>
+      </svg>
+    </button>
+  </div>
+</div>
   <!-- ============ HERO ============ -->
   <header class="hero section" id="hero">
     <!-- (Nav hidden by CSS; remove the rule to show it) -->
@@ -18,39 +62,16 @@
       <div class="brand"><span class="dot"></span><span>Credit Scoring</span></div>
       <a class="nav-btn" href="#about">Learn More</a>
     </nav>
-
     <!-- Headline (fades out as you leave hero) -->
-    <h1 class="hero-text outline">See how lenders evaluate your application</h1>
-    <h1 class="hero-text fill">See how lenders evaluate your application</h1>
-
-    <!-- Mosaic with parallax -->
-    <div id="wrapper">
-      <section id="content">
-        <section class="images">
-          <img data-speed="0.8"  src="https://plus.unsplash.com/premium_photo-1679456904199-b41183ada968?q=80&w=927&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-          <img data-speed="0.9"  src="https://plus.unsplash.com/premium_photo-1675370203803-357a68b84bbd?q=80&w=3046&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-          <img data-speed="1.0"  src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?q=80&w=1200&auto=format&fit=crop" alt="">
-          <img data-speed="1.1"  src="https://images.unsplash.com/photo-1624811532681-e58a7e25f273?q=80&w=1200&auto=format&fit=crop" alt="">
-          <img data-speed="0.9"  src="https://images.unsplash.com/photo-1646992914433-de93d0d06c98?q=80&w=1200&auto=format&fit=crop" alt="">
-          <img data-speed="1.2"  src="https://plus.unsplash.com/premium_photo-1661619603945-4abeed3cba99?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-          <img data-speed="0.85" src="https://images.unsplash.com/photo-1623118176012-9b0c6fa0712d?q=80&w=1200&auto=format&fit=crop" alt="">
-          <img data-speed="1.0"  src="https://plus.unsplash.com/premium_photo-1755147329367-5ca6f106b27b?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="">
-        </section>
-      </section>
-    </div>
-
-    <div class="hero-scroll">
-      <span>Scroll</span>
-      <div class="mouse"></div>
-    </div>
+    <h1 class="hero-text outline">Smarter credit clarity with AI</h1>
+    <h1 class="hero-text fill">EquilibrAl</h1>
+    <!-- Mosaic with parallax -->    
   </header>
-
   <!-- ============ SCROLL-DRIVEN CREDIT DIAL (pinned) ============ -->
   <section class="section dial-section" id="dial">
     <div class="wrap dial-wrap">
-      <h2 class="dial-title">Your Credit Score Range</h2>
-      <p class="dial-sub">Scroll to see how scores improve 📈</p>
-
+      <h2 class="dial-title"></h2>
+      <p class="dial-sub"></p>
       <div class="dial-container">
         <svg viewBox="0 0 360 200" class="dial-svg" aria-label="Credit score dial">
           <defs>
@@ -60,15 +81,12 @@
               <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
           </defs>
-
           <!-- ticks + labels will be injected by JS -->
           <g id="ticks"></g>
-
           <!-- background arc -->
           <path id="bg-arc"
                 d="M 30 160 A 150 150 0 0 1 330 160"
                 stroke="#233049" stroke-width="20" fill="none" stroke-linecap="round" />
-
           <!-- progress arc (dashoffset animated) -->
           <path id="progress-arc"
                 d="M 30 160 A 150 150 0 0 1 330 160"
@@ -79,10 +97,15 @@
           <circle id="pointer" r="6" cx="30" cy="160" fill="#10b981" filter="url(#soft-glow)"/>
         </svg>
 
-        <div class="score-text" id="score-text">300</div>
+        <div class="score-text" id="score-text"></div>
       </div>
     </div>
+    <div class="hero-scroll">
+      <span>scroll</span>
+      <div class="mouse"></div>
+    </div>
   </section>
+
 
   <!-- ============ ABOUT ============ -->
   <section class="section explain" id="about">
@@ -91,8 +114,8 @@
         <h2>What the model does</h2>
         <p>
           Our model estimates a borrower’s <strong>probability of default (PD)</strong> from credit history & behavior.
-          Decision bands are simple: PD ≤ <code>THRESH_APPROVE</code> → <strong>APPROVE</strong>, between thresholds →
-          <strong>CONDITIONAL</strong>, PD ≥ <code>THRESH_REJECT</code> → <strong>REJECT</strong>.
+          Decision bands are simple: PD ≤ <strong>THRESH_APPROVE</strong> → <strong>APPROVE</strong>, between thresholds →
+          <strong>CONDITIONAL</strong>, PD ≥ <strong>THRESH_REJECT</strong> → <strong>REJECT</strong>.
         </p>
         <ul class="bullets">
           <li>Sensitive to debt-to-income & utilization</li>
@@ -106,38 +129,118 @@
         <svg viewBox="0 0 320 200" class="viz-bars" role="img" aria-label="Feature importances">
           <defs>
             <linearGradient id="g1" x1="0" x2="1">
-              <stop offset="0%" stop-color="#8ab4ff"/>
-              <stop offset="100%" stop-color="#34d399"/>
+              <stop offset="0%" stop-color="#b494ff"/>
+              <stop offset="100%" stop-color="#baafc7"/>
             </linearGradient>
           </defs>
-        <g transform="translate(30,30)">
-          <text x="0" y="-8" class="viz-title">Feature Signals</text>
-          <g class="bar" data-w="220"><rect x="0" y="0"   width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">revol_util</text></g>
-          <g class="bar" data-w="190" transform="translate(0,28)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">dti</text></g>
-          <g class="bar" data-w="170" transform="translate(0,56)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">pub_rec</text></g>
-          <g class="bar" data-w="150" transform="translate(0,84)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">grade</text></g>
-          <g class="bar" data-w="130" transform="translate(0,112)"><rect width="0" height="18" rx="4" fill="url(#g1)"></rect><text x="0" y="13">payment_inc_ratio</text></g>
-        </g>
-        </svg>
-      </div>
-    </div>
-  </section>
+          <g transform="translate(30,50)">
+            <!-- Add margin above bars -->
+            <text x="0" y="-20" class="viz-title">Debt-To-Income Ratio</text>
+          
+            <!-- First bar -->
+            <g class="bar" data-w="220">
+              <rect x="0" y="0" width="0" height="18" rx="4" fill="url(#g1)"></rect>
+              <text x="0" y="32">Credit Grade</text> <!-- push label below -->
+            </g>
+          
+            <!-- Second bar -->
+            <g class="bar" data-w="190" transform="translate(0,60)">
+              <rect width="0" height="18" rx="4" fill="url(#g1)"></rect>
+              <text x="0" y="32">Payment ratio</text>
+            </g>
+          
+            <!-- Third bar -->
+            <g class="bar" data-w="170" transform="translate(0,120)">
+              <rect width="0" height="18" rx="4" fill="url(#g1)"></rect>
+              <text x="0" y="32">pub_rec</text>
+            </g>
+          
+            <!-- Fourth bar -->
+            <g class="bar" data-w="150" transform="translate(0,180)">
+              <rect width="0" height="18" rx="4" fill="url(#g1)"></rect>
+              <text x="0" y="32">grade</text>
+            </g>
+          
+            <!-- Fifth bar -->
+            <g class="bar" data-w="130" transform="translate(0,240)">
+              <rect width="0" height="18" rx="4" fill="url(#g1)"></rect>
+              <text x="0" y="32">payment_inc_ratio</text>
+            </g>
+          </g>
+
+
+<!-- ============ FULLSCREEN BACKGROUND VIDEO SECTION ============ -->
+<section class="section video-section">
+  <video class="bg-video" autoplay muted loop playsinline>
+    <source src="city.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="video-overlay">
+    <h2 class="overlay-title">Finance Reimagined</h2>
+    <p class="overlay-sub">
+      Harnessing data, transparency, and explainability — this model gives you 
+      insight that goes beyond a traditional credit score.
+    </p>
+    <a href="#cta" class="cta big">Learn More</a>
+  </div>
+</section>
+
 
   <!-- ============ TRAINING ============ -->
   <section class="section training" id="training">
     <div class="wrap training-grid">
       <div class="training-copy">
-        <h2>How we trained it</h2>
-        <p>Realistic synthetic data, engineered features (DTI, sub‑grade), and a tree ensemble.</p>
-        <p>Thresholds calibrated to map PD → Approve / Conditional / Reject.</p>
+        <h2>How I Trained It</h2>
+        <p>
+          I built the model on <strong>synthetic credit data</strong> and focused on transparency end‑to‑end:
+          feature engineering → tree‑based training → clear, auditable thresholds that map a
+          <strong>Probability of Default (PD)</strong> to a decision.
+        </p>
+        <ul class="bullets">
+          <li><strong>Feature signals:</strong> DTI, credit utilization (<strong>revol_util</strong>), grade / sub‑grade, inquiries, delinquencies, public records, employment length, open accounts.</li>
+          <li><strong>Model:</strong> Random Forest (tree ensemble) with class balancing and emphasis on interpretable signals.</li>
+          <li><strong>Thresholds:</strong> PD ≤ <strong>threshold_approve</strong> → <strong>Approve</strong>;
+              between thresholds → <strong>Conditional</strong>;
+              PD ≥ <strong>threshold_reject</strong> → <strong>Reject</strong>.</li>
+        </ul>
       </div>
+  
       <div class="slides">
-        <div class="slide one"><h3>1 — Feature Engineering</h3><p>Ratios, binaries, ordinals.</p></div>
-        <div class="slide two"><h3>2 — Model Training</h3><p>Random Forest + class balance.</p></div>
-        <div class="slide three"><h3>3 — Threshold Tuning</h3><p>Simple, auditable bands.</p></div>
+        <div class="slide one">
+          <h3>1 — Feature Engineering</h3>
+          <ul>
+            <li>Derived ratios: <strong>Debt‑to‑Income (DTI)</strong>, <strong>revol_util</strong>.</li>
+            <li>Encoded <strong>grade</strong> and <strong>sub‑grade</strong> into numeric features.</li>
+            <li>Binary flags for <strong>delinquencies</strong>, <strong>derogatories</strong>, and <strong>public records</strong>.</li>
+            <li>Profile features: <strong>employment length</strong>, <strong>recent inquiries</strong>, <strong>open accounts</strong>.</li>
+          </ul>
+        </div>
+  
+        <div class="slide two">
+          <h3>2 — Model Training</h3>
+          <ul>
+            <li>Trained a <strong>Random Forest</strong> on the engineered features.</li>
+            <li>Applied <strong>class balancing</strong> so Approve / Conditional / Reject are well represented.</li>
+            <li>Kept features that can be surfaced to users for <strong>explainability</strong>.</li>
+          </ul>
+        </div>
+  
+        <div class="slide three">
+          <h3>3 — Threshold Calibration</h3>
+          <ul>
+            <li>Model outputs a <strong>PD score</strong> for each application.</li>
+            <li>Mapped PD to decisions with <strong>auditable thresholds</strong>:</li>
+            <li><strong>PD ≤ threshold_approve</strong> → <strong>Approve</strong></li>
+            <li><strong>threshold_approve &lt; PD &lt; threshold_reject</strong> → <strong>Conditional</strong></li>
+            <li><strong>PD ≥ threshold_reject</strong> → <strong>Reject</strong></li>
+          </ul>
+        </div>
       </div>
     </div>
   </section>
+
+
 
   <!-- ============ CTA (improved) ============ -->
   <section class="section cta" id="cta">
@@ -150,7 +253,7 @@
       </p>
       <p>Try the live demo — enter details and get an instant decision.</p>
       <a href="#demo" class="cta big cta-animated">Try the Demo</a>
-      <div class="cta-glow"></div>
+     
       <div class="cta-particles" aria-hidden="true"></div>
     </div>
   </section>
@@ -261,18 +364,70 @@
               </div>
             </div>
             <div class="note">
-              Thresholds: <code>&lt;= THRESH_APPROVE → APPROVE</code> •
-              <code>between → CONDITIONAL</code> •
-              <code>&gt;= THRESH_REJECT → REJECT</code>
+              Thresholds: <strong>&lt;= THRESH_APPROVE → APPROVE</strong> •
+              <strong>between → CONDITIONAL</strong> •
+              <strong>&gt;= THRESH_REJECT → REJECT</strong>
             </div>
           </div>
         </div>
       </div>
     </section>
+    <details class="reasons" id="reasonsBox" open>
+    <summary>Why this decision?</summary>
+    <ul id="reasonsList"></ul>
+    </details>
 
-    <footer class="foot">
-      <div>API base: <span id="apiBase"></span></div>
-      <div>© <span id="year"></span> Credit Scoring Demo</div>
+    <footer class="site-footer" id="site-footer">
+      <div class="footer-wrap">
+    
+        <!-- Left: Identity -->
+        <div class="footer-brand">
+          <div class="avatar">AG</div>
+          <div class="brand-text">
+            <div class="brand-name">A project by Aaditya Grover</div>
+            <div class="brand-sub">CS @ UC Davis</div>
+          </div>
+          <div class="socials">
+            <a class="ico" href="https://github.com/groverucd" target="_blank" rel="noopener" aria-label="GitHub">
+              <!-- GitHub -->
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 .5A12 12 0 0 0 8.2 23.9c.6.1.8-.26.8-.58v-2.02c-3.34.72-4.04-1.6-4.04-1.6-.55-1.4-1.35-1.77-1.35-1.77-1.1-.76.08-.75.08-.75 1.22.09 1.86 1.26 1.86 1.26 1.08 1.84 2.83 1.31 3.52 1 .11-.79.42-1.31.77-1.61-2.66-.3-5.46-1.33-5.46-5.92 0-1.31.47-2.39 1.24-3.24-.12-.3-.54-1.52.12-3.16 0 0 1.01-.32 3.3 1.23.96-.27 1.99-.4 3.01-.41 1.02 0 2.05.14 3.01.41 2.29-1.55 3.3-1.23 3.3-1.23.66 1.64.24 2.86.12 3.16.77.85 1.24 1.93 1.24 3.24 0 4.6-2.81 5.61-5.49 5.91.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57A12 12 0 0 0 12 .5z"/></svg>
+            </a>
+            <a class="ico" href="https://www.linkedin.com/in/aadityagrover/" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <!-- LinkedIn -->
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M4.98 3.5A2.5 2.5 0 1 1 0 3.5 2.5 2.5 0 0 1 4.98 3.5zM.5 8h4v15h-4V8zm7.5 0h3.8v2.1h.05C12.38 8.98 13.67 7.9 15.6 7.9 19.9 7.9 22 10 22 14.1V23h-4v-7.9c0-1.88-.67-3.17-2.35-3.17-1.28 0-2.04.86-2.38 1.69-.12.29-.15.7-.15 1.1V23h-4V8z"/></svg>
+            </a>
+          </div>
+        </div>
+    
+        <!-- Middle: Navigation -->
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="#training">How I trained</a></li>
+            <li><a href="#cta">Try the Demo</a></li>
+          </ul>
+        </div>
+    
+        <!-- Right: Resources -->
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="#" target="_blank" rel="noopener">Resume</a></li>
+            <li><a href="#" target="_blank" rel="noopener">Blog</a></li>
+            <li><a href="#" target="_blank" rel="noopener">Newsletter</a></li>
+          </ul>
+        </div>
+      </div>
+    
+      <hr class="footer-rule"/>
+    
+      <div class="footer-bottom">
+        <div>© <span id="yearFooter"></span> Aaditya Grover. All rights reserved.</div>
+        <div class="made">
+          Built in Sunny Northern California 🌉
+        </div>
+      </div>
     </footer>
   </main>
 
@@ -280,6 +435,8 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <!-- Confetti (tiny, zero-config) -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <!-- App -->
   <script src="app.js?v=8" defer></script>
