@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
+
   <!-- Background stars -->
   
   <canvas id="bg3d" aria-hidden="true"></canvas>
@@ -440,5 +441,42 @@
 
   <!-- App -->
   <script src="app.js?v=8" defer></script>
+  <!-- AI Help: floating button + chat window -->
+<button id="aiHelpBtn" class="ai-fab" aria-label="AI Help">🤖</button>
+
+<div id="aiChat" class="ai-chat open" >
+  <div class="ai-head">
+    <strong>CrediVibe powered by Cerebras AI</strong>
+    <button id="aiClose" class="ai-x" aria-label="Close">✕</button>
+  </div>
+
+  <div id="aiMsgs" class="ai-msgs">
+    <div class="ai-msg ai-bot">
+      Hey! I’m <strong>CrediVibe</strong>—your go-to for decoding <em>grades</em>, <em>subgrades</em>, <em>DTI</em>, <em>utilization</em>, <em>inquiries</em>, <em>delinquencies</em>, and more.<br>Just ask, or let me break down the values you’ve entered and explain what they mean for you.
+    </div>
+  </div>
+
+  <form id="aiForm" class="ai-form" autocomplete="off">
+    <textarea id="aiInput" rows="2" placeholder="Ask any question related to your report"></textarea>
+    <button class="ai-send" aria-label="Send">Send</button>
+  </form>
+</div>
+<!-- Floating AI Chat -->
+<div id="aiChatWidget">
+  <button id="aiHelpBtn" class="ai-btn" aria-expanded="false" aria-controls="aiChat">🤖</button>
+
+  <div id="aiChat" class="ai-panel hidden" >
+    <div class="ai-header">
+      <span>CrediVibe powered by Cerebras AI</span>
+      <button id="aiClose" class="ai-close" aria-label="Close">×</button>
+    </div>
+    <div id="aiMsgs" class="ai-msgs"></div>
+    <form id="aiForm" class="ai-form" autocomplete="off">
+      <textarea id="aiInput" rows="2" placeholder="Ask me anything about grades, subgrades, DTI…"></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+</div>
+</div>
 </body>
 </html>
