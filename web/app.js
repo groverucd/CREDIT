@@ -592,3 +592,140 @@ window.__starsRenderer = renderer; // optional if you ever need renderer later
     const y = document.getElementById('yearFooter');
     if (y) y.textContent = new Date().getFullYear();
 })();
+// ================= AI CHAT WIDGET (safe drop-in) =================
+// ================= AI CHAT WIDGET (safe drop-in) =================
+// ================= AI CHAT WIDGET (safe drop-in) =================
+(() => {
+  try {
+    // Use your existing BASE to hit the right origin
+    var API_URL = (window.location.origin.includes("onrender.com"))
+      ? ("/api/ai-chat")
+      : ("https://credit-6wok.onrender.com/api/ai-chat");
+
+    // Grab elements (must exist in HTML — see earlier HTML snippet)
+    var btn = document.getElementById("aiHelpBtn");
+    var panel = document.getElementById("aiChat");
+    var closeBtn = document.getElementById("aiClose");
+    var msgsEl = document.getElementById("aiMsgs");
+    var form = document.getElementById("aiForm");
+    var input = document.getElementById("aiInput");
+
+    // If HTML not added yet, just bail without errors
+    if (!btn || !panel || !closeBtn || !msgsEl || !form || !input) return;
+
+    function appendMsg(text, who) {
+      var div = document.createElement("div");
+      div.className = "ai-msg ai-" + (who || "bot");
+      div.textContent = String(text || "");
+      msgsEl.appendChild(div);
+      msgsEl.scrollTop = msgsEl.scrollHeight;
+      return div;
+    }
+
+    var typingDiv = null;
+    function showTyping() {
+      typingDiv = appendMsg("Thinking…", "bot");
+      typingDiv.classList.add("ai-typing");
+    }
+    function hideTyping() {
+      if (typingDiv) { typingDiv.remove(); typingDiv = null; }
+    }
+
+    // Pull live values from your existing inputs (IDs match your code)
+    function collectContext() {
+      function valN(id, d){ var el=document.getElementById(id); var v=el?parseFloat(el.value):NaN; return isFinite(v)?v:(d||0); }
+      function valI(id, d){ var el=document.getElementById(id); var v=el?parseInt(el.value,10):NaN; return isFinite(v)?v:(d||0); }
+      function valS(id){ var el=document.getElementById(id); return el?String(el.value):""; }
+
+      var monthly_income = valN("monthly_income", 0);
+      var monthly_debt   = valN("monthly_debt", 0);
+      var dti = Math.max(0, Math.min(100, (monthly_debt / Math.max(1, monthly_income)) * 100));
+      var revol_util     = Math.max(0, Math.min(100, valN("revol_util", 0)));
+      var inq6           = valI("inq6", 0);
+      var delinq_2yrs    = valI("delinq_2yrs", 0);
+      var pub_rec        = valI("pub_rec", 0);
+      var any_derog      = (document.getElementById("any_derog") && document.getElementById("any_derog").value === "1");
+      var any_delinq     = (document.getElementById("any_delinq") && document.getElementById("any_delinq").value === "1");
+      var emp_length_num = valI("emp_length", 0);
+      var open_acc       = valI("open_acc", 0);
+      var grade          = valS("grade");
+      var subgrade       = valS("subgrade");
+
+      return {
+        grade: grade, subgrade: subgrade,
+        dti: Math.round(dti * 10) / 10,
+        revol_util: Math.round(revol_util),
+        inq6: inq6, delinq_2yrs: delinq_2yrs, pub_rec: pub_rec,
+        any_derog: any_derog, any_delinq: any_delinq,
+        emp_length_num: emp_length_num, open_acc: open_acc,
+        monthly_income: monthly_income, monthly_debt: monthly_debt
+      };
+    }
+
+    // Open/close handlers
+    btn.addEventListener("click", function() {
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) input.focus();
+    });
+    closeBtn.addEventListener("click", function() { panel.hidden = true; });
+
+    // Enter to send, Shift+Enter for newline
+    input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+      }
+    });
+
+    // Submit → call backend
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      var q = (input.value || "").trim();
+      if (!q) return;
+
+      appendMsg(q, "user");
+      input.value = "";
+
+      var ctx = collectContext();
+      var ctxText =
+        "Context: Current inputs — grade: " + ctx.grade + ", subgrade: " + ctx.subgrade + ", " +
+        "DTI: " + ctx.dti + "%, utilization: " + ctx.revol_util + "%, inquiries(6m): " + ctx.inq6 + ", " +
+        "delinquencies(2y): " + ctx.delinq_2yrs + ", public records: " + ctx.pub_rec + ", " +
+        "employment length bucket: " + ctx.emp_length_num + ", open accounts: " + ctx.open_acc + ", " +
+        "monthly income: " + ctx.monthly_income + ", monthly debt: " + ctx.monthly_debt + ". " +
+        "If the user asks 'what is my grade/subgrade/DTI/utilization?', use these exact values. " +
+        "If they ask definitions or how to improve, explain simply and briefly.";
+
+      showTyping();
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            { role: "user", content: ctxText },
+            { role: "user", content: q }
+          ]
+        })
+      })
+      .then(function(res){ return res.json().catch(function(){ return null; }).then(function(data){ return { ok: res.ok, status: res.status, data: data }; }); })
+      .then(function(resp){
+        hideTyping();
+        var text = "Sorry, I couldn’t generate a response.";
+        if (resp && resp.ok && resp.data && resp.data.choices && resp.data.choices[0] && resp.data.choices[0].message) {
+          text = resp.data.choices[0].message.content || text;
+        } else if (resp && !resp.ok) {
+          text = "Error " + resp.status;
+        }
+        appendMsg(text, "bot");
+      })
+      .catch(function(){
+        hideTyping();
+        appendMsg("Network error. Please try again.", "bot");
+      });
+    });
+  } catch (err) {
+    // Fail silent; never break the rest of your page
+    console && console.warn && console.warn("AI widget init failed:", err);
+  }
+})();
