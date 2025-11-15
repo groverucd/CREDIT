@@ -1,47 +1,83 @@
-# CREDIT - Credit Scoring API
+# 🧠 EquilibrAl — Credit Risk Scoring Engine
+*A production-grade, explainable ML system for creditworthiness evaluation.*
 
-This project is a FastAPI-based machine learning app that predicts creditworthiness.
+---
 
-## Setup
+## 🚀 Overview
+EquilibrAl is an end-to-end credit risk inference engine built to simulate real-world lending workflows.  
+It estimates a borrower’s **Probability of Default (PD)** using engineered financial indicators and maps that probability to transparent **Approve / Conditional / Reject** decisions.
 
-1. Create a virtual environment:
-   ```
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
+This project includes:
+- A **FastAPI backend** for real-time scoring  
+- A **Random Forest model** trained on synthetic bureau-style data  
+- Fully engineered **financial features**  
+- Calibrated, auditable **decision thresholds**  
+- A clean, interactive **web UI**  
+- **Dockerized deployment** on Render  
 
-2. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+---
 
-3. Run the API:
-   ```
-   uvicorn src.api.server:app --reload
-   ```
+## ✨ Features
 
-## Testing
-Run all tests:
-```
-pytest -q
-```
+### Machine Learning
+- Random Forest classifier trained on synthetic credit bureau data  
+- Balanced classes for realistic approval distributions  
+- Probability-of-default (PD) scoring  
+- Calibrated decision thresholds:
+  - Approve  
+  - Conditional  
+  - Reject  
 
+### Feature Engineering
+- Debt-to-Income Ratio (DTI)  
+- Revolving Utilization (`revol_util`)  
+- Credit Grade / Sub-grade  
+- Delinquencies, Inquiries, Derogatories  
+- Employment Length  
+- Open Accounts  
+- Public Records Flags  
 
-## Production API
+### Backend
+- FastAPI inference server  
+- `/predict` REST endpoint  
+- Pydantic validation  
+- Logging + error handling  
+- Fully containerized with Docker  
 
-Base URL: https://credit-6wok.onrender.com
+### Frontend
+- Lightweight interactive UI  
+- Real-time PD + decision display  
+- Form-based input for borrower profiles  
+- Responsive layout  
 
-### POST /predict_simple
-Body:
+### Deployment
+- Dockerized  
+- Hosted on Render  
+- Automatic build + inference pipeline  
+
+---
+
+## 🏗 Project Structure
+
+---
+
+## 🔢 API Usage
+
+### `POST /predict`
+
+**Request Body**
+```json
 {
-  "age": 35,
-  "income": 50000,
-  "loan_amount": 10000,
-  "credit_score": 700
+  "dti": 21.3,
+  "revol_util": 42.1,
+  "grade": "B",
+  "delinq": 0,
+  "inq_last_6m": 1,
+  "emp_length": 4,
+  "open_accounts": 6,
+  "pub_rec": 0
 }
-
-Response:
 {
-  "prob_default": 0.25,
-  "decision": "APPROVE"
+  "pd": 0.087,
+  "decision": "Approve"
 }
