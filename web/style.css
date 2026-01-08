@@ -104,7 +104,6 @@ html, body, .panel, .viz-card, .slide, .result-card, .btn-primary, .btn-ghost {
   stroke-width: 3;
   opacity: 1;
 }
-
 /* Labels under ticks */
 .tick-label {
   fill: #fff;
